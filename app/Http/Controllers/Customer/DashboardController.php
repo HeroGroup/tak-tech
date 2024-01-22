@@ -55,7 +55,7 @@ class DashboardController extends Controller
 
             return back()->with('message', $result['message'])->with('type', $result['type']);
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'error');
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
 
@@ -65,7 +65,7 @@ class DashboardController extends Controller
 
             return view('customer.orders', compact('orders'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'error');
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
 
@@ -75,7 +75,7 @@ class DashboardController extends Controller
 
             return view('customer.order', compact('order'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'error');
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
 
@@ -85,7 +85,7 @@ class DashboardController extends Controller
 
             return view('customer.transactions', compact('transactions'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'error');
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
 
@@ -95,7 +95,7 @@ class DashboardController extends Controller
 
             return view('customer.notifications', compact('notifications'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'error');
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
     

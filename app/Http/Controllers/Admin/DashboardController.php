@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
             return view('admin.notifications', compact('notifications'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'error');
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
 }

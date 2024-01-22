@@ -8,16 +8,17 @@
             <th class="nk-tb-col"><span>زمان</span></th>
             <th class="nk-tb-col"><span>دلیل</span></th>
             <th class="nk-tb-col"><span>مبلغ</span></th>
+            <th class="nk-tb-col"><span>توضیحات</span></th>
         </tr>
     </thead>
     <tbody>
         @foreach ($transactions as $transaction)
         <tr class="nk-tb-item">
             <td class="nk-tb-col">
-                <span class="tb-lead">#{{$transaction->id}}</span>
+                <span class="tb-lead">{{$transaction->id}}</span>
             </td>
             <td class="nk-tb-col">
-                <span class="tb-sub">{{jdate('Y/m/d ساعت H:i', $transaction->created_at->timestamp)}}</span>
+                <span class="tb-sub">{{jdate('j F Y ساعت H:i', $transaction->created_at->timestamp)}}</span>
             </td>
             <td class="nk-tb-col">
                 <span class="dot bg-warning d-sm-none"></span>
@@ -25,6 +26,9 @@
             </td>
             <td class="nk-tb-col">
                 <span class=@if($transaction->type==\App\Enums\TransactionType::INCREASE->value) 'tb-lead text-success' @else 'tb-lead text-danger' @endif>{{number_format($transaction->amount)}} تومان</span>
+            </td>
+            <td class="nk-tb-col">
+                <span class="tb-lead">{{$transaction->description}}</span>
             </td>
         </tr>
         @endforeach

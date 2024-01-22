@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\AuthController;
@@ -64,6 +65,8 @@ Route::prefix('admin')->group(function () {
             });
 
             Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
+            Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
+            Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
         });
     });
 });

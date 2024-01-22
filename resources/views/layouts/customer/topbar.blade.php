@@ -77,9 +77,9 @@
                             <div class="dropdown-inner">
                                 <ul class="link-list">
                                     <li>
-                                        <a href="{{route('customer.orders')}}">
+                                        <a href="{{route('customer.transactions')}}">
                                             <em class="icon ni ni-wallet"></em>
-                                            <span>موجودی کیف پول &nbsp; {{auth()->user()?->wallet ?? 0}} &nbsp; تومان</span>
+                                            <span>موجودی کیف پول &nbsp; {{number_format(auth()->user()?->wallet) ?? 0}} &nbsp; تومان</span>
                                         </a>
                                     </li>
                                     <li>

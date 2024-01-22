@@ -57,7 +57,7 @@
     <hr class="sidebar-divider my-0">
 
     <li class="nav-item" id="messages">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{route('admin.notifications')}}">
             <i class="fas fa-fw fa-envelope"></i>
             <span>Messages</span>
         </a>
@@ -67,7 +67,7 @@
     <hr class="sidebar-divider my-0">
 
     <li class="nav-item" id="transactions">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{route('admin.transactions')}}">
             <i class="fas fa-fw fa-euro-sign"></i>
             <span>Transactions</span>
         </a>

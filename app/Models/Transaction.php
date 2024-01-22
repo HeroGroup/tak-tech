@@ -14,10 +14,12 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'description',
         'amount',
         'type',
         'reason',
-        'status'
+        'status',
+        'transfer_token',
     ];
 
     protected $dispatchesEvents = [
