@@ -17,6 +17,7 @@ class Transaction extends Model
         'amount',
         'type',
         'reason',
+        'status'
     ];
 
     protected $dispatchesEvents = [
