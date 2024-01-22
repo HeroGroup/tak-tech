@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\AuthController;
@@ -38,6 +39,8 @@ Route::prefix('admin')->group(function () {
 
     Route::name('admin.')->group(function () {
         Route::middleware(['auth', 'verified', 'admin', 'active'])->group(function() {
+            Route::get('/setting/dbMigrate/{rollback?}', [SettingController::class, 'dbMigrate']);
+
             Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
             Route::resource('categories', CategoryController::class)->only([
