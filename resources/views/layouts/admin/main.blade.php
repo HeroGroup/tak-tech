@@ -31,6 +31,33 @@
             right:0; */
             border:.125rem solid #fff;
         }
+        .filter-btns {
+            display: flex;
+        }
+        .filter-dropdown {
+            display: none;
+        }
+        .filter-btn {
+            border: 1px solid lightgray; 
+            border-radius: 10px; 
+            background-color: #fff; 
+            display: inline-block;
+            padding: .5em;
+            margin-right: .5em;
+            text-decoration: none;
+        }
+        .filter-btn:hover {
+            background-color: #eee;
+            text-decoration: none;
+        }
+        @media (max-width: 670px) {
+            .filter-btns {
+                display: none;
+            }
+            .filter-dropdown {
+                display: block;
+            }
+    }
     </style>
 
     <!-- Bootstrap core JavaScript-->
@@ -129,7 +156,7 @@
             });
         }
 
-        $('#dataTable').DataTable();
+        $('#dataTable').DataTable({ order: false });
 
         $('select:not(select[name=DataTables_Table_0_length])').selectize({
             sortField: 'text'

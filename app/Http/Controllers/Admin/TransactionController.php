@@ -15,13 +15,22 @@ require_once app_path('/Helpers/utils.php');
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index($filter)
     {
         try {
-            $transactions = Transaction::with('user')->get();
+            if ($filter && $filter != 'all') {
+                $transactions = Transaction::with('user')->where('status', $filter)->orderBy('created_at', 'desc')->get();
+            } else {
+                $transactions = Transaction::with('user')->orderBy('created_at', 'desc')->get();
+            }
+
             $users = User::pluck('email', 'id')->toArray();
 
-            return view('admin.transactions', compact('transactions', 'users'));
+            $numberOfSuccessfulPayments = Transaction::where('status', TransactionStatus::PAYMENT_SUCCESSFUL->value)->count();
+            $numberOfFailedPayments = Transaction::where('status', TransactionStatus::PAYMENT_FAILED->value)->count();
+            $numberOfPendingPayments = Transaction::where('status', TransactionStatus::PENDING->value)->count();
+
+            return view('admin.transactions', compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }

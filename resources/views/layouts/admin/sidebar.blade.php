@@ -67,7 +67,7 @@
     <hr class="sidebar-divider my-0">
 
     <li class="nav-item" id="transactions">
-        <a class="nav-link" href="{{route('admin.transactions')}}">
+        <a class="nav-link" href="{{route('admin.transactions', 'all')}}">
             <i class="fas fa-fw fa-euro-sign"></i>
             <span>Transactions</span>
         </a>
