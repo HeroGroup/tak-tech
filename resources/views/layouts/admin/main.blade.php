@@ -36,6 +36,7 @@
         }
         .filter-dropdown {
             display: none;
+            margin-right: .5em;
         }
         .filter-btn {
             border: 1px solid lightgray; 

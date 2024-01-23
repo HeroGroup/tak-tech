@@ -74,7 +74,7 @@
     </li>
 
     <li class="nav-item" id="orders">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{route('admin.orders', 'all')}}">
             <i class="fas fa-fw fa-shopping-cart"></i>
             <span>Orders</span>
         </a>

@@ -39,10 +39,10 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
                                 
                                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="actionsDropdown">
-                                    <a href="#" class="dropdown-item">
+                                    <a href="{{route('admin.orders', ['filter' => 'all', 'userId' => $user->id])}}" class="dropdown-item">
                                         <i class="fa fa-shopping-cart"></i> Orders
                                     </a>
-                                    <a href="#" class="dropdown-item">
+                                    <a href="{{route('admin.transactions', ['filter' => 'all', 'userId' => $user->id])}}" class="dropdown-item">
                                         <i class="fa fa-euro-sign"></i> Transactions
                                     </a>
                                     <a href="#" class="dropdown-item" data-toggle="modal" data-target="#edit-user-modal-{{$user->id}}">

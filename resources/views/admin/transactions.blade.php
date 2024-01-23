@@ -4,36 +4,44 @@
     <a href="{{route('admin.transactions', 'all')}}" class="filter-btn">
         <span class="text-gray-900">All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
     </a>
-    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value)}}" class="filter-btn">
+    <a href="{{route('admin.transactions', ['filter' => \App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value, 'userId' => $userId ?? null])}}" class="filter-btn">
         <span class="text-gray-900">Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
     </a>
-    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_FAILED->value)}}" class="filter-btn">
+    <a href="{{route('admin.transactions', ['filter' => \App\Enums\TransactionStatus::PAYMENT_FAILED->value, 'userId' => $userId ?? null])}}" class="filter-btn">
         <span class="text-gray-900">Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
     </a>
-    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PENDING->value)}}" class="filter-btn">
+    <a href="{{route('admin.transactions', ['filter' => \App\Enums\TransactionStatus::PENDING->value, 'userId' => $userId ?? null])}}" class="filter-btn">
         <span class="text-gray-900">Pending Payments</span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
     </a>
 </div>
-<div class="filter-dropdown mb-4">
-    <div class="dropdown no-arrow">
-        <a class="dropdown-toggle btn btn-info btn-circle" href="#" id="actionsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fa fa-fw fa-filter"></i>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="actionsDropdown">
-            <a href="{{route('admin.transactions', 'all')}}" class="dropdown-item">
-                <span>All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
-            </a>
-            <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value)}}" class="dropdown-item">
-                <span>Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
-            </a>
-            <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_FAILED->value)}}" class="dropdown-item">
-                <span>Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
-            </a>
-            <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PENDING->value)}}" class="dropdown-item">
-                <span>Pending Payments<span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
-            </a>
+
+<div class="mb-4" style="display:flex; justify-content:space-between;border: 1px solid lightgray;border-radius:10px;background-color: #fff;padding:.5em;align-items:center;">
+    <div style="display: flex; align-items:center;">
+        <div class="filter-dropdown">
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle btn btn-info btn-circle" href="#" id="actionsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-fw fa-filter"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="actionsDropdown">
+                    <a href="{{route('admin.transactions', 'all')}}" class="dropdown-item">
+                        <span>All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
+                    </a>
+                    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value)}}" class="dropdown-item">
+                        <span>Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
+                    </a>
+                    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_FAILED->value)}}" class="dropdown-item">
+                        <span>Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
+                    </a>
+                    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PENDING->value)}}" class="dropdown-item">
+                        <span>Pending Payments<span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
+        <span class="text-gray-900">Filters: {{$filters}}</span>
+    </div>  
+    
+    <a href="{{route('admin.transactions', 'all')}}">clear filters</a>
 </div>
 
     <div class="card shadow mb-4">
@@ -65,7 +73,7 @@
                     <tbody>
                     @foreach($transactions as $transaction)
                         <tr id="{{$transaction->id}}">
-                            <td>{{$transaction->user->name ?? $transaction->user->email}}</td>
+                            <td>{{$transaction->user->email ?? $transaction->user->name}}</td>
                             <td>{{$transaction->title}}</td>
                             <td>{{$transaction->description}}</td>
                             <td>

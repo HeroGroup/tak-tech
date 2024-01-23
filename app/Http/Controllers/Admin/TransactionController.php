@@ -15,22 +15,41 @@ require_once app_path('/Helpers/utils.php');
 
 class TransactionController extends Controller
 {
-    public function index($filter)
+    public function index($filter, $userId=null)
     {
         try {
+            $transactions = Transaction::with('user');
+            $filters = $filter;
+
+            $numberOfSuccessfulPayments = Transaction::where('status', TransactionStatus::PAYMENT_SUCCESSFUL->value);
+            $numberOfFailedPayments = Transaction::where('status', TransactionStatus::PAYMENT_FAILED->value);
+            $numberOfPendingPayments = Transaction::where('status', TransactionStatus::PENDING->value);
+
             if ($filter && $filter != 'all') {
-                $transactions = Transaction::with('user')->where('status', $filter)->orderBy('created_at', 'desc')->get();
-            } else {
-                $transactions = Transaction::with('user')->orderBy('created_at', 'desc')->get();
+                $transactions = $transactions->where('status', $filter);
             }
 
+            if ($userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    $transactions = $transactions->where('user_id', $userId);
+                    $filters .= ', User: ' . $user->email;
+
+                    $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->where('user_id', $userId);
+                    $numberOfFailedPayments = $numberOfFailedPayments->where('user_id', $userId);
+                    $numberOfPendingPayments = $numberOfPendingPayments->where('user_id', $userId);
+                }
+            }
+
+            $transactions = $transactions->orderBy('created_at', 'desc')->get();
             $users = User::pluck('email', 'id')->toArray();
 
-            $numberOfSuccessfulPayments = Transaction::where('status', TransactionStatus::PAYMENT_SUCCESSFUL->value)->count();
-            $numberOfFailedPayments = Transaction::where('status', TransactionStatus::PAYMENT_FAILED->value)->count();
-            $numberOfPendingPayments = Transaction::where('status', TransactionStatus::PENDING->value)->count();
+            $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->count();
+            $numberOfFailedPayments = $numberOfFailedPayments->count();
+            $numberOfPendingPayments = $numberOfPendingPayments->count();
 
-            return view('admin.transactions', compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments'));
+            return view('admin.transactions', 
+                compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filters'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }

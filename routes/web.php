@@ -65,8 +65,9 @@ Route::prefix('admin')->group(function () {
             });
 
             Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
-            Route::get('/transactions/{filter}', [TransactionController::class, 'index'])->name('transactions');
+            Route::get('/transactions/{filter}/{userId?}', [TransactionController::class, 'index'])->name('transactions');
             Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+            Route::get('/orders/{filter}/{userId?}', [DashboardController::class, 'orders'])->name('orders');
         });
     });
 });
