@@ -12,7 +12,12 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     public function dashboard() {
-        return view('admin.dashboard');
+        $successfulOrders = Order::where('status', OrderStatus::PAYMENT_SUCCESSFUL->value);
+        $totalRevenue = $successfulOrders->sum('final_price');
+        $numberOfSuccessfulOrders = $successfulOrders->count();
+        $numberOfUsers = User::count();
+
+        return view('admin.dashboard', compact('totalRevenue', 'numberOfUsers', 'numberOfSuccessfulOrders'));
     }
 
     public function notifications() {
@@ -25,8 +30,13 @@ class DashboardController extends Controller
         }
     }
 
-    public function orders($filter, $userId=null) {
+    public function orders(Request $request) {
         try {
+            $filter = $request->query('filter');
+            $userId = $request->query('userId');
+            $fromDate = $request->query('fromDate');
+            $toDate = $request->query('toDate');
+            
             $orders = Order::with('user');
             $filters = $filter;
 
@@ -50,6 +60,24 @@ class DashboardController extends Controller
                 }
             }
 
+            if ($fromDate && $fromDate != 'null') {
+                $orders = $orders->where('created_at', '>=' ,$fromDate);
+                $filters .= ', From: ' . $fromDate;
+
+                $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->where('created_at', '>=' ,$fromDate);
+                $numberOfFailedPayments = $numberOfFailedPayments->where('created_at', '>=' ,$fromDate);
+                $numberOfPendingPayments = $numberOfPendingPayments->where('created_at', '>=' ,$fromDate);
+            }
+            
+            if ($toDate && $toDate != 'null') {
+                $orders = $orders->where('created_at', '<=' ,$toDate);
+                $filters .= ', Until: ' . $toDate;
+
+                $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->where('created_at', '<=' ,$toDate);
+                $numberOfFailedPayments = $numberOfFailedPayments->where('created_at', '<=' ,$toDate);
+                $numberOfPendingPayments = $numberOfPendingPayments->where('created_at', '<=' ,$toDate);
+            }
+
             $orders = $orders->orderBy('created_at', 'desc')->get();
 
             $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->count();
@@ -57,7 +85,7 @@ class DashboardController extends Controller
             $numberOfPendingPayments = $numberOfPendingPayments->count();
 
             return view('admin.orders', 
-                compact('orders', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filters'));
+                compact('orders', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filter', 'filters', 'fromDate', 'toDate'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }

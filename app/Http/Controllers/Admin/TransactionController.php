@@ -15,9 +15,14 @@ require_once app_path('/Helpers/utils.php');
 
 class TransactionController extends Controller
 {
-    public function index($filter, $userId=null)
+    public function index(Request $request)
     {
         try {
+            $filter = $request->query('filter');
+            $userId = $request->query('userId');
+            $fromDate = $request->query('fromDate');
+            $toDate = $request->query('toDate');
+
             $transactions = Transaction::with('user');
             $filters = $filter;
 
@@ -41,6 +46,24 @@ class TransactionController extends Controller
                 }
             }
 
+            if ($fromDate && $fromDate != 'null') {
+                $transactions = $transactions->where('created_at', '>=' ,$fromDate);
+                $filters .= ', From: ' . $fromDate;
+
+                $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->where('created_at', '>=' ,$fromDate);
+                $numberOfFailedPayments = $numberOfFailedPayments->where('created_at', '>=' ,$fromDate);
+                $numberOfPendingPayments = $numberOfPendingPayments->where('created_at', '>=' ,$fromDate);
+            }
+            
+            if ($toDate && $toDate != 'null') {
+                $transactions = $transactions->where('created_at', '<=' ,$toDate);
+                $filters .= ', Until: ' . $toDate;
+
+                $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->where('created_at', '<=' ,$toDate);
+                $numberOfFailedPayments = $numberOfFailedPayments->where('created_at', '<=' ,$toDate);
+                $numberOfPendingPayments = $numberOfPendingPayments->where('created_at', '<=' ,$toDate);
+            }
+
             $transactions = $transactions->orderBy('created_at', 'desc')->get();
             $users = User::pluck('email', 'id')->toArray();
 
@@ -49,7 +72,7 @@ class TransactionController extends Controller
             $numberOfPendingPayments = $numberOfPendingPayments->count();
 
             return view('admin.transactions', 
-                compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filters'));
+                compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filter', 'filters', 'fromDate', 'toDate'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }

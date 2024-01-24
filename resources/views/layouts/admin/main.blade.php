@@ -31,6 +31,15 @@
             right:0; */
             border:.125rem solid #fff;
         }
+        .filters-container {
+            display:flex;
+            justify-content:space-between;
+            border: 1px solid lightgray;
+            border-radius:10px;
+            background-color: #fff;
+            padding:.5em;
+            align-items:center;
+        }
         .filter-btns {
             display: flex;
         }
@@ -51,6 +60,15 @@
             background-color: #eee;
             text-decoration: none;
         }
+        .date-search-box {
+            display: flex;
+            border: 1px solid lightgray;
+            border-radius:10px;
+            background-color: #fff;
+            padding:.5em;
+            align-items:center;
+            width: 100%;
+        }
         @media (max-width: 670px) {
             .filter-btns {
                 display: none;
@@ -58,7 +76,7 @@
             .filter-dropdown {
                 display: block;
             }
-    }
+        }
     </style>
 
     <!-- Bootstrap core JavaScript-->
@@ -105,7 +123,7 @@
         <footer class="sticky-footer bg-white">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; <b>{{env('APP_NAME')}}</b> 2024</span>
+                    <span>Copyright &copy; <b>{{env('APP_NAME')}}</b> <span id="current-year"></span></span>
                 </div>
             </div>
         </footer>
@@ -135,6 +153,7 @@
 
 <script>
     $(document).ready(function() {
+        document.getElementById("current-year").innerHTML = getYear();
         if("{{\Illuminate\Support\Facades\Session::has('message')}}" === "1") {
             const Toast = Swal.mixin({
                 toast: true,
@@ -208,6 +227,37 @@
                 xhr.send(formData);
             }
         });
+    }
+
+    function searchRecords(type, filter, userId=undefined) {
+        var fromDate = document.getElementById('from-date').value;
+        var toDate = document.getElementById('to-date').value;
+        
+        var url = `/admin/${type}?filter=${filter}`;
+        if (userId) {
+            url += `&userId=${userId}`;
+        }
+        if (fromDate) {
+            url += `&fromDate=${fromDate}`;
+        }
+        if (toDate) {
+            url += `&toDate=${toDate}`;
+        }
+
+        window.location.href = url;
+    }
+
+    function searchOrders(filter, userId=undefined) {
+        searchRecords('orders', filter, userId)
+    }
+
+    function searchTransactions(filter, userId=undefined) {
+        searchRecords('transactions', filter, userId)
+    }
+
+    function getYear() {
+        var now = new Date()
+        return now.getFullYear();
     }
 </script>
 </body>

@@ -1,21 +1,41 @@
 @extends('layouts.admin.main', ['pageTitle' => 'Transactions', 'active' => 'transactions'])
 @section('content')
 <div class="row col-md-12 mb-4 filter-btns">
-    <a href="{{route('admin.transactions', 'all')}}" class="filter-btn">
+    <a href="#" onclick="searchTransactions('all', '{{$userId}}')" class="filter-btn border-bottom-info">
         <span class="text-gray-900">All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
     </a>
-    <a href="{{route('admin.transactions', ['filter' => \App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value, 'userId' => $userId ?? null])}}" class="filter-btn">
+    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value}}', '{{$userId}}')" class="filter-btn border-bottom-success">
         <span class="text-gray-900">Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
     </a>
-    <a href="{{route('admin.transactions', ['filter' => \App\Enums\TransactionStatus::PAYMENT_FAILED->value, 'userId' => $userId ?? null])}}" class="filter-btn">
+    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_FAILED->value}}', '{{$userId}}')" class="filter-btn border-bottom-danger">
         <span class="text-gray-900">Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
     </a>
-    <a href="{{route('admin.transactions', ['filter' => \App\Enums\TransactionStatus::PENDING->value, 'userId' => $userId ?? null])}}" class="filter-btn">
+    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PENDING->value}}', '{{$userId}}')" class="filter-btn border-bottom-warning">
         <span class="text-gray-900">Pending Payments</span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
     </a>
 </div>
 
-<div class="mb-4" style="display:flex; justify-content:space-between;border: 1px solid lightgray;border-radius:10px;background-color: #fff;padding:.5em;align-items:center;">
+<div class="row col-md-12 mb-4">
+    <div class="date-search-box">
+        <div class="row mr-4">
+            <label for="from-date" class="col-sm-2 col-form-label">From</label>
+            <div class="col-sm-10">
+                <input type="date" class="form-control" id="from-date" name="from-date" value={{$fromDate}}>
+            </div>
+        </div>
+        <div class="row mr-4">
+            <label for="to-date" class="col-sm-2 col-form-label">To</label>
+            <div class="col-sm-10">
+                <input type="date" class="form-control" id="to-date" name="to-date" value={{$toDate}}>
+            </div>
+        </div>
+        <div class="row">
+            <a href="#" onclick="searchTransactions('{{$filter}}', '{{$userId}}')" class="btn btn-sm btn-primary">Search</a>
+        </div>
+    </div>
+</div>
+
+<div class="filters-container mb-4">
     <div style="display: flex; align-items:center;">
         <div class="filter-dropdown">
             <div class="dropdown no-arrow">
@@ -23,25 +43,25 @@
                     <i class="fa fa-fw fa-filter"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="actionsDropdown">
-                    <a href="{{route('admin.transactions', 'all')}}" class="dropdown-item">
+                    <a href="#" onclick="searchTransactions('all', '{{$userId}}')" class="dropdown-item">
                         <span>All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
                     </a>
-                    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value)}}" class="dropdown-item">
+                    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value}}', '{{$userId}}')" class="dropdown-item">
                         <span>Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
                     </a>
-                    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PAYMENT_FAILED->value)}}" class="dropdown-item">
+                    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_FAILED->value}}', '{{$userId}}')" class="dropdown-item">
                         <span>Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
                     </a>
-                    <a href="{{route('admin.transactions', \App\Enums\TransactionStatus::PENDING->value)}}" class="dropdown-item">
+                    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PENDING->value}}', '{{$userId}}')" class="dropdown-item">
                         <span>Pending Payments<span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
                     </a>
                 </div>
             </div>
         </div>
         <span class="text-gray-900">Filters: {{$filters}}</span>
-    </div>  
+    </div>
     
-    <a href="{{route('admin.transactions', 'all')}}">clear filters</a>
+    <a href="{{route('admin.transactions')}}">clear filters</a>
 </div>
 
     <div class="card shadow mb-4">
