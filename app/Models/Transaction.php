@@ -20,10 +20,12 @@ class Transaction extends Model
         'reason',
         'status',
         'transfer_token',
+        'is_reward',
     ];
 
     protected $dispatchesEvents = [
         'created' => TransactionCreated::class,
+        'saved' => TransactionCreated::class,
     ];
 
     public function user(): BelongsTo

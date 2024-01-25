@@ -86,6 +86,7 @@ Route::prefix('customer')->group(function () {
             Route::get('/transactions', [CustomerDashboardController::class, 'transactions'])->name('transactions');
             Route::get('/notifications', [CustomerDashboardController::class, 'notifications'])->name('notifications');
             Route::post('/notifications/markAllAsRead', [CustomerDashboardController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+            Route::get('/invite', [CustomerDashboardController::class, 'invite'])->name('invite');
         });
     });
 });

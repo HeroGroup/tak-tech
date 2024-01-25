@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStatus;
 use App\Enums\TransactionType;
 use App\Enums\TransactionReason;
+use App\Enums\TransactionStatus;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\UserCart;
 use Illuminate\Http\Request;
 
@@ -98,12 +100,14 @@ class SiteController extends Controller
             $chargeTransaction->amount = $finalPriceSum;
             $chargeTransaction->type = TransactionType::INCREASE->value;
             $chargeTransaction->reason = TransactionReason::CHARGE->value;
+            $chargeTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
 
             $payTransaction = new Transaction;
             $payTransaction->title = 'پرداخت سفارش '.$order->uid;
             $payTransaction->amount = $finalPriceSum;
             $payTransaction->type = TransactionType::DECREASE->value;
             $payTransaction->reason = TransactionReason::PAYMENT->value;
+            $payTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
 
             if (auth()->user()) {
                 $userId = auth()->user()->id;
@@ -114,6 +118,26 @@ class SiteController extends Controller
                 
                 // delete cart from db
                 UserCart::where('user_id', $userId)->delete();
+
+                // check if first purchase and user has invitee
+                if (auth()->user()->invitee) {
+                    $numberOfOrders = Order::where(['user_id' => $userId, 'status' => OrderStatus::PAYMENT_SUCCESSFUL->value])->count();
+                    if ($numberOfOrders == 0) {
+                        // find invitee and give reward
+                        $invitee = User::find(auth()->user()->invitee);
+                        // ToDo: do the reward action
+                        Transaction::create([
+                            'user_id' => $invitee->id,
+                            'title' => 'شارژ کیف پول',
+                            'description' => 'شارژ کیف پول بابت دعوت از دوستان',
+                            'amount' => env('INVITE_CHARGE_AMOUNT'),
+                            'type' => TransactionType::INCREASE->value,
+                            'reason' => TransactionReason::CHARGE->value,
+                            'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                            'is_reward' => 1
+                        ]);
+                    }
+                }
             }
             
             $chargeTransaction->save();
@@ -130,7 +154,7 @@ class SiteController extends Controller
             
             $status = 'success';
         } catch (\Exception $exception) {
-            // dd($exception->getMessage());
+            dd($exception->getMessage());
             // rollback everything
             if ($order && $order->id) {
                 // delete from order items

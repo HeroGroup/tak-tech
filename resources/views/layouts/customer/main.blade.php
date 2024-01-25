@@ -84,6 +84,41 @@
                 };
                 xhr.send(JSON.stringify(body));
             }
+
+            async function shareData(data) {
+                try {
+                    await navigator.share(data);
+                } catch (e) {
+                    console.error(`Error: ${e}`);
+                    canNotShareData();
+                }
+            }
+
+            function canBrowserShareData(data) {
+                if (!navigator.share || !navigator.canShare) {
+                    return false;
+                }
+
+                return navigator.canShare(data);
+            }
+
+            function invite(code) {
+                const sharedDataSample = {
+                    title: "دعوت از دوستان",
+                    text: "خرید vpn بدون قطعی و بالاترین سرعت",
+                    url: `/register?invite_code=${code}`,
+                };
+
+                if (canBrowserShareData(sharedDataSample)) {
+                    shareData(sharedDataSample);
+                } else {
+                    canNotShareData();
+                }
+            }
+
+            function canNotShareData() {
+                alert('متاسفانه مرورگر شما از این قابلیت پشتیبانی نمی کند.');
+            }
         </script>
     </body>
 </html>

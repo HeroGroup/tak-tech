@@ -23,14 +23,15 @@ class AuthController extends Controller
     }
 
     public function getRegister(Request $request) {
-        return $this->checkLoggedInUser($request, 'auth.register');
+        $inviteCode = $request->query('invite_code', '0');
+        return $this->checkLoggedInUser($request, 'auth.register', $inviteCode);
     }
     
     public function getForgotPassword(Request $request) {
         return $this->checkLoggedInUser($request, 'auth.forgotPassword');
     }
 
-    public function checkLoggedInUser(Request $request, $view) {
+    public function checkLoggedInUser(Request $request, $view, $inviteCode=null) {
         if ($request->user()) {
             if (in_array($request->user()->userType, [UserType::SUPERADMIN->value, UserType::ADMIN->value])) {
                 return redirect()->to(RouteServiceProvider::ADMIN_HOME);
@@ -39,7 +40,7 @@ class AuthController extends Controller
             return redirect()->to(RouteServiceProvider::HOME);
         }
 
-        return view($view);
+        return view($view, compact('inviteCode'));
     }
 
     public function login(Request $request) {
@@ -73,7 +74,16 @@ class AuthController extends Controller
         $user = User::create([
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'invite_code' => generateInviteCode(),
         ]);
+
+        if ($request->invite_code) {
+            $invitee = User::where('invite_code', $request->invite_code)->first();
+            if ($invitee) {
+                $user->invitee = $invitee->id;
+                $user->save();
+            }
+        }
 
         Auth::login($user);
 

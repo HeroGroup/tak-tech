@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users')->nullable()->constrained();
+            $table->foreignId('user_id')->nullable()->constrained();
             $table->string('title', 70);
             $table->string('amount', 10);
             $table->enum('type', array_column(TransactionType::cases(), 'value'));

@@ -109,4 +109,16 @@ class DashboardController extends Controller
             return $this->fail($exception->getMessage());
         }
     }
+
+    public function invite() {
+        try {
+            $userId = auth()->user()->id;
+            $numberOdInvitedPeople = User::where('invitee', $userId)->count();;
+            $reward = Transaction::where(['user_id' => $userId, 'is_reward' => 1])->sum('amount');
+
+            return view('customer.invite', compact('numberOdInvitedPeople', 'reward'));
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+    }
 }

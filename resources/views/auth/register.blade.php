@@ -3,6 +3,7 @@
 
 <form action="{{route('auth.register')}}" method="post">
   @csrf 
+  <input type="hidden" name="invite_code" value="{{$inviteCode}}" />
   <div class="form-group">
       <label class="form-label" for="email">ایمیل</label>
       <div class="form-control-wrap">

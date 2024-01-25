@@ -12,11 +12,17 @@ function gen($count) {
 
 function generateUID() {
     // ex: awe-msub-ore
-    return gen() . '-' . gen() . '-' . gen();
+    return gen(3) . '-' . gen(4) . '-' . gen(3);
 }
 
 function rand_string( $length ) {
     $chars = "+=-)(*&^%$#@!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     return substr( str_shuffle( $chars ), 0, $length );
+}
+
+function generateInviteCode() {
+    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    return substr( str_shuffle( $chars ), 0, 5 );
 }

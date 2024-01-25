@@ -111,13 +111,6 @@ class TransactionController extends Controller
                 'description' => 'انتقال از طرف مدیریت سایت',
             ]);
 
-            Mailbox::create([
-                'user_id' => $request->to,
-                'subject' => 'افزایش اعتبار',
-                'description' => 'مبلغ ' . number_format($request->amount) . ' تومان از طرف مدیریت سایت به کیف پول شما اضافه شد.',
-                'route' => '/customer/transactions',
-            ]);
-
             return back()->with('message', 'Transfer completed successfully')->with('type', 'success');
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');

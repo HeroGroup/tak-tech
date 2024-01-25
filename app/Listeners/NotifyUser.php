@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\TransactionType;
 use App\Events\OrderCreated;
 use App\Models\Mailbox;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,7 +17,7 @@ class NotifyUser
 
     public function handle(OrderCreated $event): void
     {
-        if ($event->order->user_id) {
+        if ($event->order?->user_id) {
             // Notify User in Mailbox
             $description = 'خرید شما به تعداد x سرویس و قیمت y تومان ثبت شد.';
             $mailbox = Mailbox::create([

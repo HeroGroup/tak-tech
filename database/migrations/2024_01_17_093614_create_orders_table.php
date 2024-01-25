@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users')->nullable()->constrained();
-            $table->foreignId('transaction_id')->references('id')->on('transactions')->nullable()->constrained();
+            $table->foreignId('user_id')->nullable()->constrained();
+            $table->foreignId('transaction_id')->nullable()->constrained();
             // $table->foreignId('discount_id')->references('id')->on('discounts')->nullable();
             $table->enum('status', array_column(OrderStatus::cases(), 'value'))->default(OrderStatus::PENDING->value);
             $table->string('base_price', 10)->default(0);

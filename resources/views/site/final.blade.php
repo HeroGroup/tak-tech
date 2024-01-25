@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{config('app.name')}} | order</title>
-  <link rel="stylesheet" href="/assets/css/dashlite.rtl.css" />
+  <link rel="stylesheet" href="/assets/css/styles.rtl.css" />
 </head>
 <body dir="rtl">
   <div class="container-fluid center">

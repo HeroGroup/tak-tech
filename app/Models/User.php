@@ -30,6 +30,8 @@ class User extends Authenticatable
         'apple_refresh_token',
         'user_type', // ['superadmin', 'admin', 'reseller', 'customer']
         'wallet',
+        'invite_code',
+        'invitee',
         'is_active',
     ];
 

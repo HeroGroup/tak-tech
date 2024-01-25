@@ -53,19 +53,12 @@
                         </a>
                     </li>
                     <!-- .nk-menu-item -->
-                    <!-- <li class="nk-menu-item">
-                        <a href="#" class="nk-menu-link">
-                            <span class="nk-menu-icon"><em class="icon ni ni-opt-alt-fill"></em></span>
-                            <span class="nk-menu-text">تنظیمات</span>
+                    <li class="nk-menu-item">
+                        <a href="{{route('customer.invite')}}" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-user-add-fill"></em></span>
+                            <span class="nk-menu-text">دعوت از دوستان</span>
                         </a>
-                    </li> -->
-                    <!-- .nk-menu-item -->
-                    <!-- <li class="nk-menu-item">
-                        <a href="#" class="nk-menu-link">
-                            <span class="nk-menu-icon"><em class="icon ni ni-server-fill"></em></span>
-                            <span class="nk-menu-text">پیام ها</span>
-                        </a>
-                    </li> -->
+                    </li>
                     <!-- .nk-menu-item -->
                 </ul>
                 <!-- .nk-menu -->

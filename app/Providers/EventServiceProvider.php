@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\OrderCreated;
 use App\Events\TransactionCreated;
 use App\Listeners\NotifyUser;
+use App\Listeners\NotifyUserForTransaction;
 use App\Listeners\UpdateWallet;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -24,6 +25,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         TransactionCreated::class => [
             UpdateWallet::class,
+            NotifyUserForTransaction::class,
         ],
         OrderCreated::class => [
             NotifyUser::class,
