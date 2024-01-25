@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Enums\UserType;
 use App\Mail\RecoverPassword;
+use App\Models\User;
+use App\Models\LoginSession;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -44,25 +45,44 @@ class AuthController extends Controller
     }
 
     public function login(Request $request) {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
- 
-        if (Auth::attempt([...$credentials, 'is_active' => 1], $request->remember == "on" ? true : false)) {
-            $request->session()->regenerate();
- 
-            $userType = Auth::user()->user_type;
-            if (in_array($userType, [UserType::SUPERADMIN->value, UserType::ADMIN->value])) {
-                return redirect()->intended(RouteServiceProvider::ADMIN_HOME);
-            } 
-
-            return redirect()->intended(RouteServiceProvider::HOME);
+        try {
+            $credentials = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required'],
+            ]);
+     
+            if (Auth::attempt([...$credentials, 'is_active' => 1], $request->remember == "on" ? true : false)) {
+                // save login session
+                $request_ip = $request->ip();
+                $requset_user_agent = $request->userAgent();
+                $first_pos = strpos($requset_user_agent, '(');
+                $second_pos = strpos($requset_user_agent, ';');
+                $device = substr($requset_user_agent, $first_pos + 1, $second_pos - $first_pos - 1);
+    
+                LoginSession::create([
+                    'user_id' => Auth::user()->id,
+                    'ip_address' => $request_ip,
+                    'device' => $device,
+                ]);
+    
+                $request->session()->regenerate();
+     
+                $userType = Auth::user()->user_type;
+                if (in_array($userType, [UserType::SUPERADMIN->value, UserType::ADMIN->value])) {
+                    return redirect()->intended(RouteServiceProvider::ADMIN_HOME);
+                } 
+    
+                return redirect()->intended(RouteServiceProvider::HOME);
+            }
+     
+            return back()->withErrors([
+                'email' => 'آدرس ایمیل یا رمز عبور نادرست است.',
+            ])->onlyInput('email');
+        } catch (\Exception $exception) {
+            return back()->withErrors([
+                'email' => $exception->getMessage(),
+            ])->onlyInput('email');
         }
- 
-        return back()->withErrors([
-            'email' => 'آدرس ایمیل یا رمز عبور نادرست است.',
-        ])->onlyInput('email');
     }
 
     public function register(Request $request) {

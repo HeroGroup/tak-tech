@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginSession;
 use App\Models\Mailbox;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -17,7 +18,9 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        return view('customer.dashboard');
+        $l_session = LoginSession::where('user_id', auth()->user()->id)->orderByDesc('created_at')->first();
+        
+        return view('customer.dashboard', compact('l_session'));
     }
 
     public function profile()

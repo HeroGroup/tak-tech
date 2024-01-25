@@ -31,7 +31,7 @@
                             <div class="dropdown-body">
                                 <div class="nk-notification">
                                     @foreach ($notifications as $notification)
-                                    <div class="nk-notification-item dropdown-inner @if ($notification->is_read==0) not-read @endif">
+                                    <a href="{{$notification->route}}" class="nk-notification-item dropdown-inner @if ($notification->is_read==0) not-read @endif">
                                         <div class="nk-notification-icon">
                                             <em class="icon icon-circle bg-warning-dim ni ni-curve-down-right"></em>
                                         </div>
@@ -40,7 +40,7 @@
                                             <div class="nk-notification-time">{{$notification->description}}</div>
                                             <div class="nk-notification-time">{{jdate('Y/m/d ساعت H:i', $notification->created_at->timestamp)}}</div>
                                         </div>
-                                    </div>
+                                    </a>
                                     @endforeach
                                 </div>
                                 <!-- .nk-notification -->

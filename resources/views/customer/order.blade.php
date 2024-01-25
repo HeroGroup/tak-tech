@@ -50,7 +50,7 @@
             </div>
             
             <hr />
-            <div class="card card-bordered col-xxl-2 col-md-6 col-lg-4">
+            <div class="card card-bordered col-xxl-2 col-lg-4 col-md-6">
                 <div class="card-header bg-white" style="border-bottom: 1px solid lightgray;">
                     <h5>اقلام سفارش</h5>
                 </div>
