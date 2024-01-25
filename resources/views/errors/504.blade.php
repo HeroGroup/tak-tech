@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <link rel="shortcut icon" href="./images/favicon.png" />
         <title>خطای 504</title>
-        <link rel="stylesheet" href="./assets/css/dashlite.rtl.css" />
+        <link rel="stylesheet" href="./assets/css/styles.rtl.css" />
     </head>
 
     <body class="has-rtl nk-body bg-white npc-general pg-error" dir="rtl">
