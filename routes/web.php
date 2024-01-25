@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransactionController;
@@ -51,6 +52,8 @@ Route::prefix('admin')->group(function () {
             Route::resource('products', ProductController::class)->only([
                 'index', 'store', 'update', 'destroy'
             ]);
+
+            Route::resource('discounts', DiscountController::class);
 
             Route::prefix('users')->group(function () {
                 Route::name('users.')->group(function () {

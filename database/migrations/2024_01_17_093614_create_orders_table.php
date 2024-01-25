@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained();
             $table->foreignId('transaction_id')->nullable()->constrained();
-            // $table->foreignId('discount_id')->references('id')->on('discounts')->nullable();
             $table->enum('status', array_column(OrderStatus::cases(), 'value'))->default(OrderStatus::PENDING->value);
             $table->string('base_price', 10)->default(0);
             $table->string('final_price', 10)->default(0);

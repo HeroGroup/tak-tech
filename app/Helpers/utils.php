@@ -1,13 +1,9 @@
 <?php
 
-function gen($count) {
-    $rand = "";
-    $seed = str_split('abcdefghijklmnopqrstuvwxyz');
-    shuffle($seed);
-    foreach (array_rand($seed, $count) as $k)
-        $rand .= $seed[$k];
+function gen($length) {
+    $chars = 'abcdefghijklmnopqrstuvwxyz';
 
-    return $rand;
+    return substr( str_shuffle( $chars ), 0, $length );
 }
 
 function generateUID() {
@@ -21,8 +17,14 @@ function rand_string( $length ) {
     return substr( str_shuffle( $chars ), 0, $length );
 }
 
-function generateInviteCode() {
+function generateInviteCode($length=5) {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    return substr( str_shuffle( $chars ), 0, 5 );
+    return substr( str_shuffle( $chars ), 0, $length );
+}
+
+function generateDiscountCode($length=8) {
+    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    return substr( str_shuffle( $chars ), 0, $length );
 }
