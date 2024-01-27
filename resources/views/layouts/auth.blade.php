@@ -15,6 +15,7 @@
                 border-radius: 20px; 
                 display: inline-block; 
                 padding: 8px;
+                margin-bottom: .5em;
                 text-decoration: none;
                 width: 200px; 
             }

@@ -53,7 +53,7 @@ Route::prefix('admin')->group(function () {
                 'index', 'store', 'update', 'destroy'
             ]);
 
-            Route::resource('discounts', DiscountController::class);
+            Route::resource('discounts', DiscountController::class)->except(['show']);
 
             Route::prefix('users')->group(function () {
                 Route::name('users.')->group(function () {

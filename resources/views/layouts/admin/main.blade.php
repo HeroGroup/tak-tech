@@ -146,7 +146,7 @@
 <script src="/assets/js/sb-admin-2.min.js"></script>
 <script src="/assets/js/sweetalert2.min.js"></script>
 <script src="/assets/js/selectize.min.js"></script>
-
+<script src="/assets/js/admin.js"></script>
 
 <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
@@ -227,37 +227,6 @@
                 xhr.send(formData);
             }
         });
-    }
-
-    function searchRecords(type, filter, userId=undefined) {
-        var fromDate = document.getElementById('from-date').value;
-        var toDate = document.getElementById('to-date').value;
-        
-        var url = `/admin/${type}?filter=${filter}`;
-        if (userId) {
-            url += `&userId=${userId}`;
-        }
-        if (fromDate) {
-            url += `&fromDate=${fromDate}`;
-        }
-        if (toDate) {
-            url += `&toDate=${toDate}`;
-        }
-
-        window.location.href = url;
-    }
-
-    function searchOrders(filter, userId=undefined) {
-        searchRecords('orders', filter, userId)
-    }
-
-    function searchTransactions(filter, userId=undefined) {
-        searchRecords('transactions', filter, userId)
-    }
-
-    function getYear() {
-        var now = new Date()
-        return now.getFullYear();
     }
 </script>
 </body>

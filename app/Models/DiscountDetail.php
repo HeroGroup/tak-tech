@@ -18,6 +18,8 @@ class DiscountDetail extends Model
         'fixed_amount'
     ];
 
+    protected $dates = ['deleted_at'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(Discount::class);

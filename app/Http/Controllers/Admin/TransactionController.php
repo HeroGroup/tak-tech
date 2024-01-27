@@ -65,7 +65,7 @@ class TransactionController extends Controller
             }
 
             $transactions = $transactions->orderBy('created_at', 'desc')->get();
-            $users = User::pluck('email', 'id')->toArray();
+            $users = User::where('is_active', 1)->pluck('email', 'id')->toArray();
 
             $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->count();
             $numberOfFailedPayments = $numberOfFailedPayments->count();

@@ -19,6 +19,8 @@ class Service extends Model
         'status',
     ];
 
+    protected $dates = ['deleted_at'];
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

@@ -81,7 +81,7 @@
     </li>
 
     <li class="nav-item" id="discounts">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{route('admin.discounts.index')}}">
             <i class="fas fa-fw fa-percent"></i>
             <span>Discounts</span>
         </a>

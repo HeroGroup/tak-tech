@@ -19,6 +19,8 @@ class Product extends Model
         'is_active'
     ];
 
+    protected $dates = ['deleted_at'];
+
     public function categories(): HasMany
     {
         return $this->hasMany(ProductCategory::class);
