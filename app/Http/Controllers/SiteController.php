@@ -59,6 +59,22 @@ class SiteController extends Controller
         }
     }
 
+    public function cart() {
+        try {
+            $cart = "{}";
+
+            if (auth()->user()) {
+                $userCart = UserCart::where('user_id', auth()->user()->id)->first(['cart']);
+                if ($userCart) {
+                    $cart = $userCart->cart;
+                }
+            }
+            return view('site.cart', compact('cart'));
+        } catch (\Exeption $exception) {
+            return $this->fail($exception->getMessage());
+        }
+    }
+
     public function submitOrder(Request $request) {
         $uid = generateUID();
         $status = 'fail';
