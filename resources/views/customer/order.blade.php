@@ -40,11 +40,15 @@
                 <ul class="nk-top-products">
                     <li class="item">
                         <div class="info">مبلغ کل سفارش</div>
-                        <div class="total">{{number_format($order->final_price)}} تومان</div>
+                        <div class="total">{{number_format($order->base_price)}} تومان</div>
                     </li>
                     <li class="item">
                         <div class="info">تخفیف</div>
-                        <div class="total">{{number_format($order->base_price-$order->final_price)}} تومان</div>
+                        <div class="total @if($order->base_price>$order->final_price) text-success @endif()">{{number_format($order->base_price-$order->final_price)}} تومان</div>
+                    </li>
+                    <li class="item">
+                        <div class="info">پرداختی شما</div>
+                        <div class="total">{{number_format($order->final_price)}} تومان</div>
                     </li>
                 </ul>
             </div>
@@ -74,7 +78,7 @@
                                     <label class="text-gray">قیمت</label>
                                 </div>
                                 <div class="total">
-                                    <label>{{number_format($orderDetail->product_final_price * $orderDetail->count)}} تومان</label>
+                                    <label>{{number_format($orderDetail->product_base_price * $orderDetail->count)}} تومان</label>
                                 </div>
                             </li>
                             <li class="item">
@@ -82,7 +86,7 @@
                                     <label class="text-gray">تخفیف</label>
                                 </div>
                                 <div class="total">
-                                    <label>{{number_format(($orderDetail->product_base_price - $orderDetail->product_final_price) * $orderDetail->count)}} تومان</label>
+                                    <label @if($orderDetail->product_base_price>$orderDetail->product_final_price) class="text-success" @endif>{{number_format(($orderDetail->product_base_price - $orderDetail->product_final_price) * $orderDetail->count)}} تومان</label>
                                 </div>
                             </li>
                         </ul>

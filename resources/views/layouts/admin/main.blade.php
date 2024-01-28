@@ -147,6 +147,7 @@
 <script src="/assets/js/sweetalert2.min.js"></script>
 <script src="/assets/js/selectize.min.js"></script>
 <script src="/assets/js/admin.js"></script>
+<script src="/assets/js/logout.js"></script>
 
 <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
@@ -154,6 +155,7 @@
 <script>
     $(document).ready(function() {
         document.getElementById("current-year").innerHTML = getYear();
+
         if("{{\Illuminate\Support\Facades\Session::has('message')}}" === "1") {
             const Toast = Swal.mixin({
                 toast: true,

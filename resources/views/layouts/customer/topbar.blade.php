@@ -93,7 +93,7 @@
                             <div class="dropdown-inner">
                                 <ul class="link-list">
                                     <li>
-                                    <a href="#" onclick="document.getElementById('logout-form').submit();"><em class="icon ni ni-signout"></em><span>خروج</span></a>
+                                    <a href="#" onclick="logout()"><em class="icon ni ni-signout"></em><span>خروج</span></a>
                                     <form method="POST" action="{{route('auth.logout')}}" id="logout-form">
                                         @csrf
                                     </form>

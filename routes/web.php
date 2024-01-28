@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [SiteController::class, 'index'])->name('index');
 Route::post('/addToCart', [SiteController::class, 'addToCart'])->name('addToCart');
 Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
+Route::get('/discounts/checkDiscountCode/{code}', [DiscountController::class, 'checkDiscountCode'])->name('checkDiscountCode');
 Route::post('/submitOrder', [SiteController::class, 'submitOrder'])->name('submitOrder');
 
 

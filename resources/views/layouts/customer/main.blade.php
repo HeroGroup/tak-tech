@@ -39,6 +39,7 @@
         </div>
         <script src="/assets/js/bundle.js"></script>
         <script src="/assets/js/scripts.js"></script>
+        <script src="/assets/js/logout.js"></script>
         
         <script>
             $(document).ready(function() {

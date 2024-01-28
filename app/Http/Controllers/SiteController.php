@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Enums\TransactionType;
 use App\Enums\TransactionReason;
 use App\Enums\TransactionStatus;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
@@ -83,6 +84,19 @@ class SiteController extends Controller
         ]);
 
         try {
+            if ($request->discountCode) {
+                $discountController = new DiscountController;
+                $checkDiscountResult = $discountController->checkDiscountCode($request->discountCode, 'array');
+                
+                if ($checkDiscountResult['status'] == 1) {
+                    if (isset($checkDiscountResult['data']['discountDetails']) && count($checkDiscountResult['data']['discountDetails']) > 0) {
+                        $discountDetails = $checkDiscountResult['data']['discountDetails'];
+                    } else {
+                        $discount = $checkDiscountResult['data']['discount'];
+                    }
+                }
+            }
+
             $basePriceSum = 0;
             $finalPriceSum = 0;
             
@@ -93,27 +107,54 @@ class SiteController extends Controller
                 $product = Product::find($key);
                 $count = $value->count;
 
-                OrderDetail::create([
+                $orderDetail = [
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'count' => $count,
                     'product_title' => $product->title,
                     'product_description' => $product->description,
                     'product_base_price' => $product->price,
-                    'product_final_price' => $product->price,
-                ]);
+                ];
+
+                // implement discount code details if exist
+                $productFinalPrice = $product->price;
+                if (isset($discountDetails)) {
+                    foreach ($discountDetails as $discountDetail) {
+                        if ($key == $discountDetail->product_id) {
+                            if ($discountDetail->discount_percent) {
+                                $productFinalPrice = $productFinalPrice * (100 - $discountDetail->discount_percent);
+                            } else if ($discountDetail->fixed_amount) {
+                                $productFinalPrice = $productFinalPrice - $discountDetail->fixed_amount;
+                            }
+                            $orderDetail['discount_detail_id'] = $discountDetail->id;
+                        }
+                    }
+                }
+                $orderDetail['product_final_price'] = $productFinalPrice;
+
+                OrderDetail::create($orderDetail);
 
                 $basePriceSum += $product->price * $count;
-                // if discount code exists, 
-                // from discount code details find corresponding discount fee
-                // and update product_final_price
-                $finalPriceSum += $product->price * $count;
+                $finalPriceSum += $productFinalPrice * $count;
             }
             
+            if (isset($discount)) {
+                // maniuplate order final price
+                if ($discount->discount_percent) {
+                    $finalPriceSum = $finalPriceSum * (100 - $discount->discount_percent);
+                } else if ($discount->fixed_amount) {
+                    $finalPriceSum = $finalPriceSum - $discount->fixed_amount;
+                }
+                $order->discount_id = $discount->id;
+            }
+
             // unreal transactions
+            // کسر موجودی کیف پول در صورت وجود
+            $amountToCharge = $finalPriceSum - auth()->user()?->wallet;
+
             $chargeTransaction = new Transaction;
             $chargeTransaction->title = 'شارژ کیف پول';
-            $chargeTransaction->amount = $finalPriceSum;
+            $chargeTransaction->amount = $amountToCharge;
             $chargeTransaction->type = TransactionType::INCREASE->value;
             $chargeTransaction->reason = TransactionReason::CHARGE->value;
             $chargeTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
@@ -160,9 +201,6 @@ class SiteController extends Controller
             $payTransaction->save();
             
             $order->base_price = $basePriceSum;
-            // if discount code exists, 
-            // from discount code details find corresponding discount fee
-            // and update order final_price
             $order->final_price = $finalPriceSum;
             $order->status = OrderStatus::PAYMENT_SUCCESSFUL->value;
             $order->transaction_id = $payTransaction->id;
@@ -170,7 +208,7 @@ class SiteController extends Controller
             
             $status = 'success';
         } catch (\Exception $exception) {
-            dd($exception->getMessage());
+            dd($exception->getLine().': '.$exception->getMessage());
             // rollback everything
             if ($order && $order->id) {
                 // delete from order items

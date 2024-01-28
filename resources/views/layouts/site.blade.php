@@ -97,7 +97,7 @@
                                                 <div class="dropdown-inner">
                                                     <ul class="link-list">
                                                         <li>
-                                                            <a href="#" onclick="document.getElementById('logout-form').submit();"><em class="icon ni ni-signout"></em><span>خروج</span></a>
+                                                            <a href="#" onclick="logout()"><em class="icon ni ni-signout"></em><span>خروج</span></a>
                                                             <form method="POST" action="{{route('auth.logout')}}" id="logout-form">
                                                                 @csrf
                                                             </form>
@@ -213,11 +213,9 @@
         </div>
         
         <div class="finalize-box" id="finalize-box">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#cartModal">نهایی کردن خرید</a>
-            <div>
+            <a href="#" style="flex:1" data-bs-toggle="modal" data-bs-target="#cartModal">نهایی کردن خرید</a>
+            <div style="flex: 1; text-align:left;">
                 <span id="cart-sum" class="cart-sum"></span>
-                &nbsp;
-                <span>تومان</span>
             </div>
         </div>
 
@@ -233,20 +231,22 @@
                 <ul class="cart-list" id="cart-list"></ul>
                 <hr />
                 <div style="display: flex; justify-content: space-between;">
-                    <div>مبلغ قابل پرداخت</div>
-                    <div>
+                    <div style="flex: 1">مبلغ قابل پرداخت</div>
+                    <div style="flex: 1; text-align: left;">
                         <span class="cart-sum"></span>
-                        &nbsp;
-                        <span>تومان</span>
                     </div>
                 </div>
                 <hr />
 
                 <div style="display: flex; justify-content :space-between; align-items: center;">
-                    <div>
+                    <div style="flex: 2">
                         <input type="text" class="form-control" name="discount-code" id="discount-code" placeholder="کد تخفیف دارید؟">
+                        <div class="form-text text-danger d-none" id="check-discount-response"></div>
                     </div>
-                    <button type="button" class="btn btn-sm btn-success" onclick="checkDiscountCode()">ثبت کد</button>
+                    <div style="flex: 1; text-align: left;">
+                        <button type="button" id="check-discount-code-btn" class="btn btn-sm btn-success d-inline" onclick="checkDiscountCode()">ثبت کد</button>
+                        <button type="button" id="remove-discount-code-btn" class="btn btn-sm btn-danger d-none" onclick="removeDiscountCode()">حدف کد</button>
+                    </div>
                 </div>
 
             </div>
@@ -260,11 +260,14 @@
         <!-- JavaScript -->
         <script src="/assets/js/bundle.js"></script>
         <script src="/assets/js/scripts.js"></script>
+        <script src="/assets/js/logout.js"></script>
+
         <script>
             var userId = "{{auth()->user()?->id}}";
             var cartFromServer = JSON.parse("{{$cart}}".replace(/&quot;/g,'"'));
             var cartFromStorage = JSON.parse(localStorage.getItem('cart'));
             var chosenCart;
+            var discountCodeEnabled = false;
 
             if (Object.keys(cartFromServer || {}).length > 0) {
                 chosenCart = cartFromServer;
@@ -316,26 +319,61 @@
                     cartIcon.classList.add("icon-status-info");
                     finalizeBox.style.display = "flex";
                     var totalSum = 0;
+                    var totalFinalSum = 0;
 
                     cartKeys.forEach((item) => {
-                        var itemSum = cart[item].price * cart[item].count
+                        var itemSum = cart[item].price * cart[item].count;
+                        var itemFinalSum = 0;
+                        if (cart[item].finalPrice) {
+                            itemFinalSum = cart[item].finalPrice * cart[item].count;
+                        }
                         totalSum += itemSum;
+                        totalFinalSum += itemFinalSum > 0 ? itemFinalSum : itemSum;
+
                         list += `<li class="cart-item" style="padding:10px;display:flex;">
                             <div style="flex: 2">${cart[item].title}</div>
-                            <div style="flex: 1; text-align: center;">${cart[item].count}</div>
-                            <div style="flex: 2; text-align: end;">${new Intl.NumberFormat().format(itemSum)} تومان</div>
-                            </li>`;
+                            <div style="flex: 1; text-align: center;">${cart[item].count}</div>`;
+                            if (itemFinalSum > 0) {
+                                list += 
+                                `<div>
+                                    <div style="flex: 2; text-align: end;"><s>${new Intl.NumberFormat().format(itemSum)} تومان</s></div>
+                                    <div style="flex: 2; text-align: end;" class="text-success">${new Intl.NumberFormat().format(itemFinalSum)} تومان</div>
+                                </div>`;
+                            } else {
+                                list += `<div style="flex: 2; text-align: end;">${new Intl.NumberFormat().format(itemSum)} تومان</div>`;
+                            }
+                            
+                            list += `</li>`;
                     });
 
-                    cartBottom.innerHTML = 
+                    var cbih = 
                         `<div style="width: 100%; display: flex;">
-                            <a style="flex: 1;" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">نهایی کردن خرید</a>
-                            <div style="flex: 1; text-align: end;">${new Intl.NumberFormat().format(totalSum)} تومان</div>
-                        </div>`;
+                            <a style="flex: 1;" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">نهایی کردن خرید</a>`;
+                        if (totalSum > totalFinalSum) {
+                            cbih += 
+                            `<div style="flex: 1; text-align: end;">
+                                <div><s>${new Intl.NumberFormat().format(totalSum)} تومان</s></div>
+                                <div class="text-success">${new Intl.NumberFormat().format(totalFinalSum)} تومان</div>
+                            </div>`
+                        } else {
+                            cbih += `<div style="flex: 1; text-align: end;">${new Intl.NumberFormat().format(totalSum)} تومان</div>`;
+                        }
+                            
+                        cbih += `</div>`;
+
+                    cartBottom.innerHTML = cbih;
 
                     // cartSum.innerHTML = `${new Intl.NumberFormat().format(totalSum)}`;
                     Array.prototype.forEach.call(cartSums, function(element) {
-                        element.innerHTML = `${new Intl.NumberFormat().format(totalSum)}`;
+                        if (totalSum > totalFinalSum) {
+                            element.innerHTML = `
+                                <s>${new Intl.NumberFormat().format(totalSum)} تومان</s>
+                                <div class="text-success">${new Intl.NumberFormat().format(totalFinalSum)} تومان</div>
+                            `;
+                        } else {
+                            element.innerHTML = `${new Intl.NumberFormat().format(totalSum)} تومان`;
+                        }
+                        
                     });
                 } else {
                     // icon-status-na
@@ -406,6 +444,7 @@
                 const body = { 
                     '_token': "{{csrf_token()}}",
                     cart: JSON.stringify(cart),
+                    discountCode: document.getElementById("discount-code").value,
                 };
 
                 xhr.onreadystatechange = () => {
@@ -418,8 +457,124 @@
                 xhr.send(JSON.stringify(body));
             }
 
+            function implementDiscountCodeOnUserCart(data) {
+                var applied = false;
+                if (!discountCodeEnabled) {
+                    var discount = data.discount;
+                    var discountDetails = data.discountDetails;
+                    if (discountDetails) {
+                        // process user cart
+                        jQuery.each(cart, function(index, value) {
+                            for (var i=0; i < discountDetails.length; i++) {
+                                if (index == discountDetails[i].product_id) {
+                                    if (discountDetails[i].discount_percent) {
+                                        cart[index].finalPrice = cart[index].price * (100 - discountDetails[i].discount_percent);
+                                    } else if (discountDetails[i].fixed_amount) {
+                                        cart[index].finalPrice = cart[index].price - discountDetails[i].fixed_amount;
+                                    }
+                                    applied = true;
+                                }
+                            }
+                        });
+
+                        discountCodeEnabled = true;
+                        updateCartElement();
+                    } else if (discount) {
+                        // manipulate final price
+                        var basePrice = 0;
+                        var finalPrice = 0;
+
+                        Object.keys(cart).forEach((item) => {
+                            basePrice += cart[item].price * cart[item].count;
+                        });
+
+                        if (discount.discount_percent) {
+                            finalPrice = basePrice - (100 - discount.discount_percent);
+                        } else if (discount.fixed_amount) {
+                            finalPrice = basePrice - discount.fixed_amount;
+                        }
+
+                        var cartSums = document.getElementsByClassName("cart-sum");
+                        Array.prototype.forEach.call(cartSums, function(element) {
+                            element.innerHTML = `
+                                <s>${new Intl.NumberFormat().format(basePrice)} تومان</s>
+                                <div class="text-success">${new Intl.NumberFormat().format(finalPrice)} تومان</div>
+                            `;
+                        });
+                        applied = tue;
+                    }
+                }
+                return applied;
+            }
+
             function checkDiscountCode() {
-                //
+                var code = document.getElementById("discount-code");
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', `/discounts/checkDiscountCode/${code.value}`, true);
+                xhr.addEventListener("load", function() {
+                    var responseText = document.getElementById("check-discount-response");
+                    var checkDiscountCodeBtn = document.getElementById("check-discount-code-btn");
+                    var removeDiscountCodeBtn = document.getElementById("remove-discount-code-btn");
+                    var response = JSON.parse(xhr.response);
+
+                    if(response.status === 1) {
+                        var applied = implementDiscountCodeOnUserCart(response.data);
+                        responseText.innerHTML = response.message;
+                        
+                        responseText.classList.remove("text-danger", "d-none");
+                        responseText.classList.add("text-success", "d-block");
+
+                        checkDiscountCodeBtn.classList.remove("d-inline");
+                        checkDiscountCodeBtn.classList.add("d-none");
+                        
+                        removeDiscountCodeBtn.classList.remove("d-none");
+                        removeDiscountCodeBtn.classList.add("d-inline");
+                        if (!applied) {
+                            responseText.innerHTML = 'این کد تخفیف برای محصولات انتخابی شما معتبر نمی باشد';
+                        }
+                    } else {
+                        // alert incoming message
+                        responseText.innerHTML = response.message;
+                        responseText.classList.remove("text-success", "d-none");
+                        responseText.classList.add("text-danger", "d-block");
+                    }
+                });
+                xhr.send();
+            }
+
+            function removeDiscountCode() {
+                // clear discount code input
+                document.getElementById("discount-code").value = "";
+                
+                // remove all finalPrices from cart
+                jQuery.each(cart, function(index, value) {
+                    delete cart[index].finalPrice;
+                });
+
+                // change button
+                var checkDiscountCodeBtn = document.getElementById("check-discount-code-btn");
+                var removeDiscountCodeBtn = document.getElementById("remove-discount-code-btn");
+
+                checkDiscountCodeBtn.classList.add("d-inline");
+                checkDiscountCodeBtn.classList.remove("d-none");
+                        
+                removeDiscountCodeBtn.classList.add("d-none");
+                removeDiscountCodeBtn.classList.remove("d-inline");
+
+                // update cart on server
+                if (userId) {
+                    sendCartToServer("{{route('addToCart')}}");
+                }
+
+                // update cart element
+                updateCartElement();
+
+                var helpText = document.getElementById("check-discount-response");
+                helpText.classList.add("d-none");
+                helpText.classList.remove("d-block");
+
+                discountCodeEnabled = false;
             }
         </script>
     </body>

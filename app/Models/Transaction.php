@@ -25,7 +25,7 @@ class Transaction extends Model
 
     protected $dispatchesEvents = [
         'created' => TransactionCreated::class,
-        'saved' => TransactionCreated::class,
+        // 'saved' => TransactionCreated::class,
     ];
 
     public function user(): BelongsTo

@@ -87,7 +87,7 @@
                     @csrf
                 </form>
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <button class="btn btn-danger" onclick="document.getElementById('logout-form').submit();">Logout</button>
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
     </div>
