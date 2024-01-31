@@ -372,39 +372,39 @@
                         <div class="row justify-content-center">
                             <div class="col-xl-4 col-md-5 col-sm-7">
                                 <div class="section-head text-center">
-                                    <h2 class="title">سرویس مورد نظر خود را انتخاب کنید</h2>
+                                    <h5 class="title">سرویس مورد نظر خود را انتخاب کنید</h5>
                                 </div>
                                 <!-- .section-head -->
                             </div>
                             <!-- .col -->
                         </div>
                         <!-- .row -->
-                        <div class="row justify-content-center justify-content-lg-between align-items-center text-center g-gs">
-                            @if (isset($products) && count($products) > 0)
+                        @if (isset($products) && count($products) > 0)
+                            <div class="row justify-content-center g-gs">
                             @foreach ($products as $product)
-                            <div class="col-xl-3 col-sm-6">
-                                <div class="pricing pricing-s1 card card-shadow round-xl">
-                                    <div class="card-inner card-inner-lg">
-                                        <h2 class="pricing-amount">{{number_format($product->price)}} تومان <small>/ماهانه</small></h2>
-                                        <span class="sub-title">{{$product->description}}</span>
-                                        <h5 class="pricing-title">{{$product->title}}</h5>
-                                        <ul class="pricing-features list list-nostyle">
-                                            @foreach ($product->categories as $productCategory)
-                                            <li>{{$productCategory->category->title}}</li>  
-                                            @endforeach
-                                        </ul>
-                                        <div class="pricing-action" id="pricing-action-{{$product->id}}">
-                                            <button class="btn btn-primary btn-lg btn-block" onclick="addToCart({{$product->id}}, '{{$product->title}}', '{{$product->price}}', 'increase')">
-                                                <span>انتخاب</span>
-                                            </button>
+                                <?php $features = explode('-', $product->description); ?>
+                                <div class="col-xl-4 col-lg-4 col-sm-6">
+                                    <div class="pricing pricing-s3 @if($product->is_featured) pricing-featured @endif card card-shadow card-bordered round-xl">
+                                        <div class="card-inner card-inner-lg">
+                                            <object data="{{$product->image_url}}" type="image/png" width="64" height="64" class="center mb-4" style="width:100%">
+                                                <img src="/assets/img/undraw_rocket.svg" alt="product image" width="64" height="64">
+                                            </object>
+                                            <h4 class="title pb-2 fw-normal center">{{$product->title}}</h4>
+                                            <span class="pb-4 fw-medium center sub-title">{{number_format($product->price)}} تومان / {{$product->period ?? 'ماهانه'}}</span>
+                                            <ul class="list list-success list-check gy-2">
+                                                @foreach ($features as $feature)
+                                                <li>{{$feature}}</li>  
+                                                @endforeach
+                                            </ul>
+                                            <div class="pricing-action" id="pricing-action-{{$product->id}}">
+                                                <a href="#" class="btn btn-outline-light btn-lg btn-block" onclick="addToCart({{$product->id}}, '{{$product->title}}', '{{$product->price}}', 'increase')"><span>انتخاب</span></a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                @endforeach
                             </div>
-                            @endforeach
-                            @endif
-                        </div>
-                        <!-- .row -->
+                        @endif
                     </div>
                     <!-- .container -->
                 </section>

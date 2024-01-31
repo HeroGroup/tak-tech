@@ -16,6 +16,7 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
+                            <th>Image</th>
                             <th>Title</th>
                             <th>Description</th>
                             <th>Price</th>
@@ -27,6 +28,11 @@
                     <tbody>
                     @foreach($products as $product)
                         <tr id="{{$product->id}}">
+                            <td>
+                            <object data="{{$product->image_url}}" type="image/png" width="32" height="32" class="center mb-4" style="width:100%">
+                                <img src="/assets/img/undraw_rocket.svg" alt="product image" width="32" height="32">
+                            </object>
+                            </td>
                             <td>{{$product->title}}</td>
                             <td>{{$product->description}}</td>
                             <td>{{$product->price}}</td>
@@ -61,9 +67,19 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <form method="post" action="{{route('admin.products.update',$product->id)}}">
+                                                <form method="post" action="{{route('admin.products.update',$product->id)}}" enctype="multipart/form-data">
                                                     @csrf
                                                     <input type="hidden" name="_method" value="PUT">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <object data="{{$product->image_url}}" type="image/png" width="64" height="64" class="center mb-4" style="width:100%">
+                                                            <img src="/assets/img/undraw_rocket.svg" alt="product image" width="64" height="64">
+                                                        </object>
+                                                        <label for="photo">Choose Photo for Product</label>
+                                                        <input type="file" name="photo" accept="image/*"  />
+                                                    </div>
+                                                        
+                                                    </div>
                                                     <div class="form-group row" style="margin-bottom:30px;">
                                                       <div class="col-md-12">
                                                         <label for="categories">Categories</label>
@@ -91,6 +107,14 @@
                                                             <label for="price">Price</label>
                                                             <input class="form-control" name="price" value="{{$product->price}}" placeholder="Enter product title" required>
                                                         </div>
+                                                    </div>
+                                                    <div>
+                                                      <span> Not Featured </span>
+                                                      <label class="switch">
+                                                          <input type="checkbox" name="is_featured" @if($product->is_featured) checked @endif >
+                                                          <span class="slider round"></span>
+                                                        </label>
+                                                      <span> Featured </span>
                                                     </div>
                                                     <div>
                                                       <span> Inactive </span>
@@ -136,7 +160,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{{route('admin.products.store')}}">
+                    <form method="post" action="{{route('admin.products.store')}}" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group row" style="margin-bottom:30px;">
                           <div class="col-md-12">
@@ -164,6 +188,12 @@
                             <div class="col-md-12">
                                 <label for="price">Price</label>
                                 <input class="form-control" name="price" value="{{old('price')}}" placeholder="Enter product price" required>
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-bottom:30px;">
+                            <div class="col-md-12">
+                                <label for="photo">Choose Photo for Product</label>
+                                <input type="file" name="photo" accept="image/*"  />
                             </div>
                         </div>
                         <div class="form-group row" style="margin-bottom:30px;">

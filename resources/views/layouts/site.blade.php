@@ -291,11 +291,12 @@
                     pricingActionElement.innerHTML = `<button class="btn btn-primary btn-lg btn-block" onclick="addToCart(${id}, '${title}', '${price}', 'increase')">
                         <span>انتخاب</span>
                     </button>`;
-                } else if (count >= 1) {
-                    pricingActionElement.innerHTML = `<button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'increase')">
+                } else if (count > 0) {
+                    pricingActionElement.innerHTML = 
+                    `<button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'increase')">
                         <span>+</span>
                     </button>
-                    <button id="${id}-count" class="btn" style="width:50px;">${count}</button>
+                    <b id="${id}-count" style="margin: 1em;">${count}</b>
                     <button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'decrease')">
                         <span>-</span>
                     </button>`;
