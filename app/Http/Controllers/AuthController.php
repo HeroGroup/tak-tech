@@ -50,6 +50,19 @@ class AuthController extends Controller
                 'email' => ['required', 'email'],
                 'password' => ['required'],
             ]);
+
+            $user = User::where('email', $request->email)->first();
+            if ($user && $user->google_id) {
+                // has registered with google
+                $provider = 'google';
+                return view('auth.passwordRecovered', compact('provider'));
+            }
+            if ($user && $user->apple_id) {
+                // has registered with apple
+                $provider = 'apple';
+                return view('auth.passwordRecovered', compact('provider'));
+            }
+
      
             if (Auth::attempt([...$credentials, 'is_active' => 1], $request->remember == "on" ? true : false)) {
                 // save login session
@@ -187,7 +200,7 @@ class AuthController extends Controller
      
         Auth::login($user, $remember = true);
 
-        $request->session()->regenerate();
+        // $request->session()->regenerate();
  
         $userType = Auth::user()->user_type;
         if (in_array($userType, [UserType::SUPERADMIN->value, UserType::ADMIN->value])) {

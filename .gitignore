@@ -19,5 +19,6 @@ yarn-error.log
 /.vscode
 **/.DS_Store
 google-OAuth.json
+google-user.json
 /public
 backup.php
