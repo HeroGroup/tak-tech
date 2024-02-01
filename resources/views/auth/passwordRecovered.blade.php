@@ -1,4 +1,4 @@
-@extends('layouts.auth', ['pageTitle' => 'Password Recovered', 'pageTitleFa' => 'بازیابی رمز عبور'])
+@extends('layouts.auth', ['pageTitle' => 'Password Recovered', 'pageTitleFa' => isset($provider) ? '' : 'بازیابی رمز عبور'])
 @section('content')
     @if(isset($provider))
     <div class="text-center">
