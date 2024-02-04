@@ -93,7 +93,7 @@
                     <tbody>
                     @foreach($transactions as $transaction)
                         <tr id="{{$transaction->id}}">
-                            <td>{{$transaction->user->email ?? $transaction->user->name}}</td>
+                            <td>{{$transaction->user?->email}}</td>
                             <td>{{$transaction->title}}</td>
                             <td>{{$transaction->description}}</td>
                             <td>

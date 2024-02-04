@@ -91,7 +91,7 @@
                     await navigator.share(data);
                 } catch (e) {
                     console.error(`Error: ${e}`);
-                    canNotShareData();
+                    // canNotShareData();
                 }
             }
 

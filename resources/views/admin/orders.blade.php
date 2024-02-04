@@ -85,7 +85,7 @@
                     @foreach($orders as $order)
                         <tr id="{{$order->id}}">
                             <td>{{$order->uid}}</td>
-                            <td>{{$order->user->email ?? $order->user->name}}</td>
+                            <td>{{$order->user?->email}}</td>
                             <td>{{number_format($order->base_price)}}</td>
                             <td>{{number_format($order->final_price)}}</td>
                             <td>
