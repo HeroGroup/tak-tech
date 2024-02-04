@@ -104,16 +104,20 @@
             }
 
             function invite(code) {
+                const shareUrl = `/register?invite_code=${code}`;
                 const sharedDataSample = {
                     title: "دعوت از دوستان",
                     text: "خرید vpn بدون قطعی و بالاترین سرعت",
-                    url: `/register?invite_code=${code}`,
+                    url: shareUrl,
                 };
 
                 if (canBrowserShareData(sharedDataSample)) {
                     shareData(sharedDataSample);
                 } else {
-                    canNotShareData();
+                    // canNotShareData();
+                    // copy to cliboard
+                    navigator.clipboard.writeText(shareUrl);
+                    toastr.success('لینک دعوت کپی شد.');
                 }
             }
 

@@ -65,18 +65,8 @@ class AuthController extends Controller
 
      
             if (Auth::attempt([...$credentials, 'is_active' => 1], $request->remember == "on" ? true : false)) {
-                // save login session
-                $request_ip = $request->ip();
-                $requset_user_agent = $request->userAgent();
-                $first_pos = strpos($requset_user_agent, '(');
-                $second_pos = strpos($requset_user_agent, ';');
-                $device = substr($requset_user_agent, $first_pos + 1, $second_pos - $first_pos - 1);
-    
-                LoginSession::create([
-                    'user_id' => Auth::user()->id,
-                    'ip_address' => $request_ip,
-                    'device' => $device,
-                ]);
+                
+                $this->saveLoginSession($request->ip(), $request->userAgent());
     
                 $request->session()->regenerate();
      
@@ -119,6 +109,8 @@ class AuthController extends Controller
         }
 
         Auth::login($user);
+
+        $this->saveLoginSession($request->ip(), $request->userAgent());
 
         return redirect(RouteServiceProvider::HOME);
     }
@@ -175,7 +167,7 @@ class AuthController extends Controller
         }
     }
 
-    public function callback($provider) {
+    public function callback(Request $request, $provider) {
         switch ($provider) {
             case 'google':
                 $googleUser = Socialite::driver('google')->user();
@@ -196,11 +188,14 @@ class AuthController extends Controller
             'email' => $googleUser->email,
             'google_token' => $googleUser->token,
             'google_refresh_token' => $googleUser->refreshToken,
+            'invite_code' => generateInviteCode(),
         ]);
      
         Auth::login($user, $remember = true);
 
-        // $request->session()->regenerate();
+        $this->saveLoginSession($request->ip(), $request->userAgent());
+
+        $request->session()->regenerate();
  
         $userType = Auth::user()->user_type;
         if (in_array($userType, [UserType::SUPERADMIN->value, UserType::ADMIN->value])) {
@@ -209,4 +204,19 @@ class AuthController extends Controller
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }
+
+    public function saveLoginSession($request_ip, $requset_user_agent) 
+    {
+        // save login session
+        $first_pos = strpos($requset_user_agent, '(');
+        $second_pos = strpos($requset_user_agent, ';');
+        $device = substr($requset_user_agent, $first_pos + 1, $second_pos - $first_pos - 1);
+        
+        LoginSession::create([
+            'user_id' => Auth::user()->id,
+            'ip_address' => $request_ip,
+            'device' => $device,
+        ]);
+    }
+
 }

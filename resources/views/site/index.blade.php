@@ -352,11 +352,6 @@
                                     <p>
                                         انواع مختلفی از قسمت های لورم ایپسوم در دسترس است، اما اکثریت آن ها به شکلی دچار تغییراتی شدند، با طنز تزریقی، یا کلمات تصادفی که حتی اندکی هم باورپذیر به نظر نمی رسند.
                                     </p>
-                                    <ul class="btns-inline">
-                                        <li>
-                                            <a href="#" class="btn btn-lg btn-primary"><span>دریافت اپلیکیشن</span></a>
-                                        </li>
-                                    </ul>
                                 </div>
                                 <!-- .text-block -->
                             </div>
@@ -386,9 +381,12 @@
                                 <div class="col-xl-4 col-lg-4 col-sm-6">
                                     <div class="pricing pricing-s3 @if($product->is_featured) pricing-featured @endif card card-shadow card-bordered round-xl">
                                         <div class="card-inner card-inner-lg">
-                                            <object data="{{$product->image_url}}" type="image/png" width="64" height="64" class="center mb-4" style="width:100%">
+                                            <div class="center mb-4">
                                                 <img src="/assets/img/undraw_rocket.svg" alt="product image" width="64" height="64">
-                                            </object>
+                                            </div>
+                                            <!-- <object data="{{$product->image_url}}" type="image/png" width="64" height="64" class="center mb-4" style="width:100%">
+                                                <img src="/assets/img/undraw_rocket.svg" alt="product image" width="64" height="64">
+                                            </object> -->
                                             <h4 class="title pb-2 fw-normal center">{{$product->title}}</h4>
                                             <span class="pb-4 fw-medium center sub-title">{{number_format($product->price)}} تومان / {{$product->period ?? 'ماهانه'}}</span>
                                             <ul class="list list-success list-check gy-2">
