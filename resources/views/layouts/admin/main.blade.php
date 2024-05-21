@@ -77,6 +77,25 @@
                 display: block;
             }
         }
+        .pagination-btn {
+            border: 1px solid lightgray; 
+            border-radius: 3px; 
+            color: #222; 
+            padding: 0 5px;
+        }
+        .pagination-btn:hover {
+            text-decoration: none;
+        }
+        .pagination-btn.active {
+            color: white;
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+        a.disabled {
+            color: lightgray;
+            cursor: default;
+            pointer-events: none;
+        }
     </style>
 
     <!-- Bootstrap core JavaScript-->
@@ -97,11 +116,10 @@
         <!-- Main Content -->
         <div id="content">
 
-            @include('layouts.admin.topbar')
+            @include('layouts.admin.topbar', ['pageTitle' => $pageTitle])
 
             <div class="container-fluid">
                 <div style="display:flex;justify-content:space-between;padding-bottom:10px">
-                    <h1 class="h3 mb-2 text-gray-800">{{$pageTitle}}</h1>
                     @if(isset($newButton))
                         <a href="{{isset($newButtonUrl) ? $newButtonUrl : '#'}}" class="btn btn-primary btn-icon-split">
                             <span class="icon text-white-50">
@@ -155,6 +173,11 @@
 <script>
     $(document).ready(function() {
         document.getElementById("current-year").innerHTML = getYear();
+
+        checkPageUrlParameters();
+
+        var isLastPage = "{{isset($isLastPage) ? $isLastPage : 'undefined'}}";
+        checkIsLastPage(isLastPage);
 
         if("{{\Illuminate\Support\Facades\Session::has('message')}}" === "1") {
             const Toast = Swal.mixin({
@@ -229,6 +252,37 @@
                 xhr.send(formData);
             }
         });
+    }
+
+    function checkPageUrlParameters() {
+        var queryString = window.location.search;
+        var urlParams = new URLSearchParams(queryString);
+        var page = urlParams.get('page');
+        var take = urlParams.get('take');
+
+        if (page) {
+            document.getElementById("page-number").innerHTML = page;
+            
+            if (page === '1') {
+                document.getElementById('previous-page-btn').classList.add('disabled');
+            } else {
+                document.getElementById('previous-page-btn').classList.remove('disabled');
+            }
+        }
+
+        if (take) {
+            document.getElementById('take-btn-50').classList.remove('active');
+            document.getElementById(`take-btn-${take}`).classList.add('active');
+        }
+    }
+    function checkIsLastPage(isLastPage) {
+        if (isLastPage != 'undefined') {
+            if (isLastPage==='1') {
+                document.getElementById('next-page-btn').classList.add('disabled');
+            } else {
+                document.getElementById('next-page-btn').classList.remove('disabled');
+            }
+        }
     }
 </script>
 </body>

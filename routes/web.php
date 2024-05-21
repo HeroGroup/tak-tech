@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\UserController;
@@ -17,7 +18,7 @@ Route::post('/addToCart', [SiteController::class, 'addToCart'])->name('addToCart
 Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
 Route::get('/discounts/checkDiscountCode/{code}', [DiscountController::class, 'checkDiscountCode'])->name('checkDiscountCode');
 Route::post('/submitOrder', [SiteController::class, 'submitOrder'])->name('submitOrder');
-
+Route::get('/download/{name}', [SiteController::class, 'downloadZip'])->name('downloadZip');
 
 Route::name('auth.')->group(function () {
     Route::get('/login', [AuthController::class, 'getLogin'])->name('login');
@@ -54,6 +55,8 @@ Route::prefix('admin')->group(function () {
             Route::resource('products', ProductController::class)->only([
                 'index', 'store', 'update', 'destroy'
             ]);
+            Route::get('/products/{id}/importServices', [ProductController::class, 'importServices'])->name('products.importServices');
+            Route::post('/products/importServices', [ProductController::class, 'importServicesAction'])->name('products.importServices.post');
 
             Route::resource('discounts', DiscountController::class)->except(['show']);
 
@@ -69,6 +72,7 @@ Route::prefix('admin')->group(function () {
                 });
             });
 
+            Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
             Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
             Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
             Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
@@ -88,6 +92,9 @@ Route::prefix('customer')->group(function () {
             Route::put('/updatePassword', [CustomerDashboardController::class, 'updatePassword'])->name('updatePassword');
             Route::get('/orders', [CustomerDashboardController::class, 'orders'])->name('orders');
             Route::get('/orders/{uid}', [CustomerDashboardController::class, 'showOrder'])->name('orders.show');
+            Route::get('/services', [CustomerDashboardController::class, 'services'])->name('services');
+            Route::put('/services/{id}/updateNote', [CustomerDashboardController::class, 'updateServiceNote'])->name('services.updateNote');
+            Route::get('/services/{id}/download', [CustomerDashboardController::class, 'downloadService'])->name('services.download');
             Route::get('/transactions', [CustomerDashboardController::class, 'transactions'])->name('transactions');
             Route::get('/notifications', [CustomerDashboardController::class, 'notifications'])->name('notifications');
             Route::post('/notifications/markAllAsRead', [CustomerDashboardController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');

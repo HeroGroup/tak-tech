@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Laravel\Socialite\Facades\Socialite;
 
-require_once __DIR__.'/../../Helpers/utils.php';
+require_once app_path('Helpers/utils.php');
 
 class AuthController extends Controller
 {

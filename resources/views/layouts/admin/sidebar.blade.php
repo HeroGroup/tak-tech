@@ -47,7 +47,7 @@
 
 
     <li class="nav-item" id="services">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{route('admin.services.index')}}">
             <i class="fas fa-fw fa-server"></i>
             <span>Services</span>
         </a>

@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SiteController;
 use App\Models\LoginSession;
 use App\Models\Mailbox;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Traits\UpdatePassword;
 use Illuminate\Http\Request;
+
+require_once app_path('Helpers/utils.php');
 
 class DashboardController extends Controller
 {
@@ -79,6 +83,45 @@ class DashboardController extends Controller
             return view('customer.order', compact('order'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+    }
+
+    public function services() {
+    try {
+        $services = Service::where('owner', auth()->user()->id)->orderByDesc('id')->get();
+
+        return view('customer.services', compact('services'));
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+    }
+
+    public function updateServiceNote(Request $request, $id) {
+        try {
+            Service::where('id', $id)->where('owner', auth()->user()->id)->update(['note' => $request->note]);
+
+            return back()->with('message', 'توضیحات سرویس با موفقیت به روزرسانی شد.')->with('type', 'success');
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+    }
+
+    public function downloadService($id) {
+        try {
+            $service = Service::where('id', $id)->where('owner', auth()->user()->id)->first();
+
+            if ($service->conf_file && $service->qr_file) {
+                $now_ts = time();
+                $zipName = resource_path("confs/$now_ts.zip");
+                $files = [$service->conf_file, $service->qr_file];
+                $zipResult = createZip($files, $zipName, $now_ts);
+                if ($zipResult['status'] == 1) {
+                    $sc = new SiteController();
+                    return $sc->downloadZip($now_ts);
+                }
+            }
+        } catch (\Exception $exception) {
+            //
         }
     }
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DiscountController;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserCart;
@@ -18,13 +19,19 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Hash;
 
-require_once __DIR__.'/../../Helpers/utils.php';
+require_once app_path('Helpers/utils.php');
 
 class SiteController extends Controller
 {
     public function index() {
         try {
-            $products = Product::where('is_active', 1)->get();
+            $products = Product::where('products.is_active', 1)
+                ->join('services', 'services.product_id', '=', 'products.id')
+                ->where('services.is_sold', 0)
+                ->selectRaw('products.*, COUNT(*) AS CNT')
+                ->groupByRaw('`products`.`id`, `products`.`title`, `products`.`description`, `products`.`image_url`, `products`.`price`, `products`.`is_featured`')
+                ->get();
+
             $cart = "{}";
 
             if (auth()->user()) {
@@ -79,9 +86,14 @@ class SiteController extends Controller
     public function submitOrder(Request $request) {
         $uid = generateUID();
         $status = 'fail';
+        $message = '';
+        $now_ts = time();
+        $zipName = resource_path("confs/$now_ts.zip");
+
         $order = Order::create([
             'uid' => $uid
         ]);
+        $now = date('Y-m-d H:i:s', time());
 
         try {
             if ($request->discountCode) {
@@ -132,7 +144,22 @@ class SiteController extends Controller
                 }
                 $orderDetail['product_final_price'] = $productFinalPrice;
 
-                OrderDetail::create($orderDetail);
+                $order_detail_record = OrderDetail::create($orderDetail);
+
+                $services = [];
+                $files = [];
+                for ($i=0; $i < $count; $i++) { 
+                    $service = Service::where('product_id', $product->id)->where('is_sold', 0)->first();
+                    array_push($services, $service->id);
+                    array_push($files, $service->qr_file);
+                    array_push($files, $service->conf_file);
+                    $service->update([
+                        'is_sold' => 1,
+                        'sold_at' => $now,
+                        'order_detail_id' => $order_detail_record->id,
+                        'activated_date' => $now
+                    ]);
+                }
 
                 $basePriceSum += $product->price * $count;
                 $finalPriceSum += $productFinalPrice * $count;
@@ -172,6 +199,11 @@ class SiteController extends Controller
                 $order->user_id = $userId;
                 $chargeTransaction->user_id = $userId;
                 $payTransaction->user_id = $userId;
+                $serviceUpdate['owner'] = $userId;
+                if (auth()->user()->user_type !== 'customer') {
+                    $serviceUpdate['activated_at'] = NULL;
+                }
+                Service::whereIn('id', $services)->update($serviceUpdate);
                 
                 // delete cart from db
                 UserCart::where('user_id', $userId)->delete();
@@ -205,20 +237,37 @@ class SiteController extends Controller
             $order->status = OrderStatus::PAYMENT_SUCCESSFUL->value;
             $order->transaction_id = $payTransaction->id;
             $order->save();
+
+            $zipResult = createZip($files, $zipName, $now_ts);
+            if ($zipResult['status'] == 1) {
+                // create download link to $zipResult['file']
+            } else {
+                $message .= $zipResult['message'];
+            }
             
             $status = 'success';
+            $message .= 'سفارش با موفقیت ثبت شد!';
         } catch (\Exception $exception) {
-            dd($exception->getLine().': '.$exception->getMessage());
+            $message = $exception->getLine().': '.$exception->getMessage();
             // rollback everything
             if ($order && $order->id) {
                 // delete from order items
                 OrderDetail::where('order_id', $order->id)->delete();
 
+                $pay_transaction_id = $order->transaction_id;
                 // delete order
                 $order->delete();
+
+                // delete transactions
+                Transaction::where('id', $pay_transaction_id)->delete();
             }
         } finally {
-            return view('site.final', compact('status'));
+            return view('site.final', compact('status', 'message', 'now_ts'));
         }
+    }
+
+    public function downloadZip($name)
+    {
+        return response()->download(resource_path("confs/$name.zip"));
     }
 }

@@ -11,9 +11,31 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $is_sold = $request->query('is_sold');
+            if (in_array($is_sold, ['0', '1'])) {
+                $services = Service::where('is_sold', $is_sold)->get();
+            } else {
+                $services = Service::get();
+            }
+
+            $page = $request->query('page', 1);
+            $take = $request->query('take', 50);
+            if ($take == 'all') {
+                $isLastPage = true;
+            } else {
+                $skip = ($page - 1) * $take;
+                $services = $services->skip($skip)->take($take);
+                $isLastPage = (count($services) < $take) ? true : false;
+            }
+            $numberOfSoldServices = Service::where('is_sold', 1)->count();
+            $numberOfFreeServices = Service::where('is_sold', 0)->count();
+            return view('admin.services', compact('services', 'numberOfSoldServices', 'numberOfFreeServices', 'isLastPage'));
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
     }
 
     /**

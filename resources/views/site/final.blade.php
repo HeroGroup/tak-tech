@@ -8,23 +8,38 @@
 </head>
 <body dir="rtl">
   <div class="container-fluid center">
-    <div class="card center" style="margin-top: 100px; padding: 2rem; width: 400px;">
+    <div class="card center" style="margin-top: 100px; padding: 2rem; width: 500px;">
       @if ($status == 'success')
-      <img src="/assets/img/success-icon.png" width="128" height="128" alt="success" />  
+      <img src="/assets/img/success-icon.png" width="128" height="128" alt="موفق" />  
       @else
-      <img src="/assets/img/error-icon.png" width="128" height="128" alt="error" />
+      <img src="/assets/img/error-icon.png" width="128" height="128" alt="خطا" />
       @endif
       <div class="card-inner">
         @if ($status == 'success')
-        <h5 class="card-title">سفارش با موفقیت ثبت شد!</h5>
+        <h5 class="card-title">{{$message}}</h5>
         @else
         <h5 class="card-title">خطا در ثبت سفارش!</h5>
+        <span>{{$message}}</span>
         @endif
+
         <div class="card-text" style="display: flex; justify-content: space-between;">
             <label>شماره پیگیری</label>
             <label>12345678</label>
           </div>
         </div>
+        
+        @if ($status == 'success')
+        <a href="{{route('downloadZip',$now_ts)}}" target="blank" class="btn btn-success">دانلود تنظیمات</a>
+        <hr/>
+        <div style="width: 100%; text-align:c center;padding: 8px;">
+          <form action="#" method="#">
+            @csrf
+            <input type="email" name="email" id="email" />
+            <input type="submit" value="ارسال تنظیمات به ایمیل" class="btn btn-info" />
+          </form>
+        </div>
+        <hr/>
+        @endif
         <a href="/" class="btn btn-primary">بازگشت به صفحه اصلی</a>
     </div>
   </div>

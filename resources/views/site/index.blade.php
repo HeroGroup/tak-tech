@@ -381,12 +381,10 @@
                                 <div class="col-xl-4 col-lg-4 col-sm-6">
                                     <div class="pricing pricing-s3 @if($product->is_featured) pricing-featured @endif card card-shadow card-bordered round-xl">
                                         <div class="card-inner card-inner-lg">
+                                            <?php $image_url = $product->image_url ?? "/assets/img/undraw_rocket.svg"; ?>
                                             <div class="center mb-4">
-                                                <img src="/assets/img/undraw_rocket.svg" alt="product image" width="64" height="64">
+                                                <img src="{{$image_url}}" alt="product image" width="64" height="64">
                                             </div>
-                                            <!-- <object data="{{$product->image_url}}" type="image/png" width="64" height="64" class="center mb-4" style="width:100%">
-                                                <img src="/assets/img/undraw_rocket.svg" alt="product image" width="64" height="64">
-                                            </object> -->
                                             <h4 class="title pb-2 fw-normal center">{{$product->title}}</h4>
                                             <span class="pb-4 fw-medium center sub-title">{{number_format($product->price)}} تومان / {{$product->period ?? 'ماهانه'}}</span>
                                             <ul class="list list-success list-check gy-2">
@@ -395,7 +393,7 @@
                                                 @endforeach
                                             </ul>
                                             <div class="pricing-action" id="pricing-action-{{$product->id}}">
-                                                <a href="#" class="btn btn-outline-light btn-lg btn-block" onclick="addToCart({{$product->id}}, '{{$product->title}}', '{{$product->price}}', 'increase')"><span>انتخاب</span></a>
+                                                <a href="#" class="btn btn-outline-light btn-lg btn-block" onclick="addToCart({{$product->id}}, '{{$product->title}}', '{{$product->price}}', 'increase', '{{$product->CNT}}')"><span>انتخاب</span></a>
                                             </div>
                                         </div>
                                     </div>

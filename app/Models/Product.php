@@ -18,7 +18,10 @@ class Product extends Model
         'price',
         'period',
         'is_featured',
-        'is_active'
+        'is_active',
+        'iType', // limited, unlimited
+        'allowed_traffic', // if is limited
+        'maximum_connections', // if is unlimited
     ];
 
     protected $dates = ['deleted_at'];

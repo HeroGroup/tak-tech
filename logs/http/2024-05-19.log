@@ -1,0 +1,8 @@
+[21:30:02] navid.hero.1@gmail.com GET customer/orders/rzy-yvbe-cau [] 
+[21:30:15] navid.hero.1@gmail.com GET customer/transactions [] 
+[21:30:21] navid.hero.1@gmail.com POST customer/notifications/markAllAsRead {"_token":"jIk4YxWcFb3Q7e7SiFmXwlUBiI7oGoVK6EBntmo6"} 
+[21:31:03] navid.hero.1@gmail.com GET admin/services {"is_sold":"all","take":"50"} 
+[21:31:05] navid.hero.1@gmail.com GET admin/services {"is_sold":"0","take":"50"} 
+[21:31:06] navid.hero.1@gmail.com GET admin/services {"is_sold":"1","take":"50"} 
+[21:31:07] navid.hero.1@gmail.com GET admin/services {"is_sold":"all","take":"50"} 
+[21:31:08] navid.hero.1@gmail.com GET admin/services {"is_sold":"1","take":"50"} 

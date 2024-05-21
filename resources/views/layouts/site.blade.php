@@ -38,7 +38,7 @@
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
                                                 <div class="dropdown-head">
-                                                    <span class="sub-title nk-dropdown-title">سب خرید</span>
+                                                    <span class="sub-title nk-dropdown-title">سبد خرید</span>
                                                 </div>
                                                 <div class="dropdown-body">
                                                     <ul class="cart-list" id="cart-list">
@@ -278,26 +278,33 @@
             var cart = {};
             if (chosenCart) {
                 cart = chosenCart;
-                updateCartElement();
                 var cartElements = Object.keys(cart);
                 cartElements.forEach(element => {
                     setPricingActionHtml(element, cart[element].title, cart[element].price, cart[element].count);
                 });
+                updateCartElement();
             }
 
-            function setPricingActionHtml(id, title, price, count) {
+            function setPricingActionHtml(id, title, price, count, max=null) {
                 var pricingActionElement = document.getElementById(`pricing-action-${id}`);
-                if (count === 0) {
-                    pricingActionElement.innerHTML = `<button class="btn btn-primary btn-lg btn-block" onclick="addToCart(${id}, '${title}', '${price}', 'increase')">
+                if (!pricingActionElement) {
+                    // remove from cart
+                    delete cart[id];
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    if (userId) {
+                        sendCartToServer("{{route('addToCart')}}");
+                    }
+                } else if (count === 0) {
+                    pricingActionElement.innerHTML = `<button class="btn btn-primary btn-lg btn-block" onclick="addToCart(${id}, '${title}', '${price}', 'increase', ${max})">
                         <span>انتخاب</span>
                     </button>`;
                 } else if (count > 0) {
                     pricingActionElement.innerHTML = 
-                    `<button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'increase')">
+                    `<button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'increase', ${max})">
                         <span>+</span>
                     </button>
                     <b id="${id}-count" style="margin: 1em;">${count}</b>
-                    <button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'decrease')">
+                    <button class="btn btn-primary btn-lg" onclick="addToCart(${id}, '${title}', '${price}', 'decrease', ${max})">
                         <span>-</span>
                     </button>`;
                 }
@@ -391,20 +398,25 @@
                 });
             }
 
-            function addToCart(productId, productTitle, productPrice, type) {
+            function addToCart(productId, productTitle, productPrice, type, max=null) {
                 var productCount = document.getElementById(`${productId}-count`);
                 if (Object.keys(cart).includes(`${productId}`)) {
                     // available in cart
                     var currentValue = cart[productId].count;
 
                     if (type === "increase") {
-                        var nextValue = currentValue + 1;
+                        if (max > 0) {
+                            var nextValue = (currentValue + 1 <= max) ? currentValue + 1 : currentValue;
+                        } else {
+                            var nextValue = currentValue + 1;
+                        }
+                        
                         cart[productId].count = nextValue;
                     } else if (type === "decrease") {
                         var nextValue = currentValue - 1;
                         if (currentValue === 0 || nextValue === 0) {
                             delete cart[productId];
-                            setPricingActionHtml(productId, productTitle, productPrice, 0);
+                            setPricingActionHtml(productId, productTitle, productPrice, 0, max);
                             productCount.innerHTML = 0;
                         } else {
                             cart[productId].count = nextValue;
@@ -420,7 +432,7 @@
                             title: productTitle,
                             price: productPrice,
                         };
-                        setPricingActionHtml(productId, productTitle, productPrice, 1);
+                        setPricingActionHtml(productId, productTitle, productPrice, 1, max);
                     }
                 }
 

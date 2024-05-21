@@ -14,15 +14,12 @@
             <div class="nk-main">
                 @include('layouts.customer.sidebar')
                 <div class="nk-wrap">
-                    @include('layouts.customer.topbar')
+                    @include('layouts.customer.topbar', ['pageTitleFa' => $pageTitleFa])
                     <div class="nk-content">
                         <div class="container-fluid">
                             <div class="nk-content-inner">
                                 <div class="nk-content-body">
-                                    {{$pageTitleFa ?? 'داشبورد'}}
-                                    
                                     @yield('content')
-
                                 </div>
                             </div>
                         </div>
