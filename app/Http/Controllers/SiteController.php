@@ -29,7 +29,7 @@ class SiteController extends Controller
                 ->join('services', 'services.product_id', '=', 'products.id')
                 ->where('services.is_sold', 0)
                 ->selectRaw('products.*, COUNT(*) AS CNT')
-                ->groupByRaw('`products`.`id`, `products`.`title`, `products`.`description`, `products`.`image_url`, `products`.`price`, `products`.`is_featured`, `products`.`period`')
+                ->groupByRaw('`products`.`id`, `products`.`title`, `products`.`description`, `products`.`image_url`, `products`.`price`, `products`.`is_featured`, `products`.`period`, `products`.`iType`')
                 ->get();
 
             $cart = "{}";
