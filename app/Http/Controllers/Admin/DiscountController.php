@@ -20,37 +20,48 @@ class DiscountController extends Controller
 {
     public function index()
     {
-        $discounts = Discount::all();
-
-        return view('admin.discount.index', compact('discounts'));
+        try {
+            $discounts = Discount::all();
+            return view('admin.discount.index', compact('discounts'));
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
     }
 
     public function create()
     {
-        $code = generateDiscountCode();
-        $users = User::where('is_active', 1)->pluck('email', 'id')->toArray();
-        $products = Product::where('is_active', 1)->pluck('title', 'id')->toArray();
+        try {
+            $code = generateDiscountCode();
+            $users = User::where('is_active', 1)->pluck('email', 'id')->toArray();
+            $products = Product::where('is_active', 1)->pluck('title', 'id')->toArray();
 
-        return view('admin.discount.create', compact('code', 'users', 'products'));
+            return view('admin.discount.create', compact('code', 'users', 'products'));
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
     }
 
     public function createDiscountDetailsFromRequest($discount_id, $request_product_id, $request_product_discount_percent, $request_product_fixed_amount)
     {
-        $request_product_id_count = count($request_product_id);
-        if ($request_product_id_count > 0) {
-            for($i=0; $i<$request_product_id_count; $i++) {
-                if ($request_product_id[$i] && 
-                    ($request_product_discount_percent[$i] || 
-                    $request_product_fixed_amount[$i])) {
-                    // 
-                    DiscountDetail::create([
-                        'discount_id' => $discount_id,
-                        'product_id' => $request_product_id[$i],
-                        'discount_percent' => $request_product_discount_percent[$i],
-                        'fixed_amount' => $request_product_fixed_amount[$i]
-                    ]);
+        try {
+            $request_product_id_count = count($request_product_id);
+            if ($request_product_id_count > 0) {
+                for($i=0; $i<$request_product_id_count; $i++) {
+                    if ($request_product_id[$i] && 
+                        ($request_product_discount_percent[$i] || 
+                        $request_product_fixed_amount[$i])) {
+                        // 
+                        DiscountDetail::create([
+                            'discount_id' => $discount_id,
+                            'product_id' => $request_product_id[$i],
+                            'discount_percent' => $request_product_discount_percent[$i],
+                            'fixed_amount' => $request_product_fixed_amount[$i]
+                        ]);
+                    }
                 }
             }
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
     }
 
@@ -68,12 +79,14 @@ class DiscountController extends Controller
                 'for_user' => $request->for_user,
             ]);
 
-            $this->createDiscountDetailsFromRequest(
-                $discount->id,
-                $request->product_id,
-                $request->product_discount_percent,
-                $request->product_fixed_amount
-            );
+            if ($request->product_id) {
+                $this->createDiscountDetailsFromRequest(
+                    $discount->id,
+                    $request->product_id,
+                    $request->product_discount_percent,
+                    $request->product_fixed_amount
+                );
+            }
 
             return back()->with('message', 'Discount created successfully.')->with('type', 'success');
         } catch (\Exception $exception) {
@@ -83,11 +96,15 @@ class DiscountController extends Controller
 
     public function edit(Discount $discount)
     {
-        $discountDetails = DiscountDetail::where('discount_id', $discount->id)->get();
-        $users = User::where('is_active', 1)->pluck('email', 'id')->toArray();
-        $products = Product::where('is_active', 1)->pluck('title', 'id')->toArray();
+        try {
+            $discountDetails = DiscountDetail::where('discount_id', $discount->id)->get();
+            $users = User::where('is_active', 1)->pluck('email', 'id')->toArray();
+            $products = Product::where('is_active', 1)->pluck('title', 'id')->toArray();
 
-        return view('admin.discount.edit', compact('discount', 'discountDetails', 'users', 'products'));
+            return view('admin.discount.edit', compact('discount', 'discountDetails', 'users', 'products'));
+        } catch (\Exception $exception) {
+            return back()->withInput()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
     }
 
     public function update(Request $request, Discount $discount)
@@ -103,13 +120,15 @@ class DiscountController extends Controller
             $discount->is_active = $request->is_active == "on" ? 1 : 0;
             $discount->save();
             
-            DiscountDetail::where('discount_id', $discount->id)->delete();
-            $this->createDiscountDetailsFromRequest(
-                $discount->id,
-                $request->product_id,
-                $request->product_discount_percent,
-                $request->product_fixed_amount
-            );
+            if ($request->product_id) {
+                DiscountDetail::where('discount_id', $discount->id)->delete();
+                $this->createDiscountDetailsFromRequest(
+                    $discount->id,
+                    $request->product_id,
+                    $request->product_discount_percent,
+                    $request->product_fixed_amount
+                );
+            }
 
             return back()->with('message', 'Discount updated successfully.')->with('type', 'success');
         } catch (\Exception $exception) {

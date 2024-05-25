@@ -23,3 +23,6 @@ google-user.json
 /public
 backup.php
 /resources/confs
+/logs/api/*
+/logs/errors/*
+/logs/http/*
