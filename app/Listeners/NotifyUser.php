@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App\Enums\TransactionType;
 use App\Events\OrderCreated;
 use App\Models\Mailbox;
 use Illuminate\Contracts\Queue\ShouldQueue;

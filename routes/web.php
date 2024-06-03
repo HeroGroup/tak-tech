@@ -18,6 +18,7 @@ Route::post('/addToCart', [SiteController::class, 'addToCart'])->name('addToCart
 Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
 Route::get('/discounts/checkDiscountCode/{code}', [DiscountController::class, 'checkDiscountCode'])->name('checkDiscountCode');
 Route::post('/submitOrder', [SiteController::class, 'submitOrder'])->name('submitOrder');
+Route::get('/payResult', [SiteController::class, 'payResult'])->name('payResult');
 Route::get('/download/{name}', [SiteController::class, 'downloadZip'])->name('downloadZip');
 
 Route::name('auth.')->group(function () {

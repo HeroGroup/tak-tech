@@ -19,6 +19,8 @@ class Order extends Model
         'status',
         'base_price',
         'final_price',
+        'transaction_id',
+        'payment_method',
     ];
     
     protected $dispatchesEvents = [

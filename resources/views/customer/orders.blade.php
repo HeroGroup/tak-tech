@@ -23,7 +23,11 @@
                 </td>
                 <td class="nk-tb-col">
                     <span class="dot bg-warning d-sm-none"></span>
+                    @if($order->status==\App\Enums\OrderStatus::PENDING->value)
+                    <span class="badge badge-sm badge-dot has-bg bg-warning d-none d-sm-inline-flex">{{$order->status}}</span>
+                    @else
                     <span class="badge badge-sm badge-dot has-bg bg-success d-none d-sm-inline-flex">{{$order->status}}</span>
+                    @endif
                 </td>
                 <td class="nk-tb-col">
                     <span class="tb-lead">{{number_format($order->final_price)}} تومان</span>

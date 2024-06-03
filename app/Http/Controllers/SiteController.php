@@ -87,11 +87,10 @@ class SiteController extends Controller
         $uid = generateUID();
         $status = 'fail';
         $message = '';
-        $now_ts = time();
-        $zipName = resource_path("confs/$now_ts.zip");
-
+        
         $order = Order::create([
-            'uid' => $uid
+            'uid' => $uid,
+            'status' => OrderStatus::PENDING->value
         ]);
         $now = date('Y-m-d H:i:s', time());
 
@@ -146,21 +145,6 @@ class SiteController extends Controller
 
                 $order_detail_record = OrderDetail::create($orderDetail);
 
-                $services = [];
-                $files = [];
-                for ($i=0; $i < $count; $i++) { 
-                    $service = Service::where('product_id', $product->id)->where('is_sold', 0)->first();
-                    array_push($services, $service->id);
-                    array_push($files, $service->qr_file);
-                    array_push($files, $service->conf_file);
-                    $service->update([
-                        'is_sold' => 1,
-                        'sold_at' => $now,
-                        'order_detail_id' => $order_detail_record->id,
-                        'activated_date' => $now
-                    ]);
-                }
-
                 $basePriceSum += $product->price * $count;
                 $finalPriceSum += $productFinalPrice * $count;
             }
@@ -175,78 +159,15 @@ class SiteController extends Controller
                 $order->discount_id = $discount->id;
             }
 
-            // unreal transactions
-            // کسر موجودی کیف پول در صورت وجود
-            $amountToCharge = $finalPriceSum - auth()->user()?->wallet;
-
-            $chargeTransaction = new Transaction;
-            $chargeTransaction->title = 'شارژ کیف پول';
-            $chargeTransaction->amount = $amountToCharge;
-            $chargeTransaction->type = TransactionType::INCREASE->value;
-            $chargeTransaction->reason = TransactionReason::CHARGE->value;
-            $chargeTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
-
-            $payTransaction = new Transaction;
-            $payTransaction->title = 'پرداخت سفارش '.$order->uid;
-            $payTransaction->amount = $finalPriceSum;
-            $payTransaction->type = TransactionType::DECREASE->value;
-            $payTransaction->reason = TransactionReason::PAYMENT->value;
-            $payTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
-
-            if (auth()->user()) {
-                $userId = auth()->user()->id;
-
-                $order->user_id = $userId;
-                $chargeTransaction->user_id = $userId;
-                $payTransaction->user_id = $userId;
-                $serviceUpdate['owner'] = $userId;
-                if (auth()->user()->user_type !== 'customer') {
-                    $serviceUpdate['activated_at'] = NULL;
-                }
-                Service::whereIn('id', $services)->update($serviceUpdate);
-                
-                // delete cart from db
-                UserCart::where('user_id', $userId)->delete();
-
-                // check if first purchase and user has invitee
-                if (auth()->user()->invitee) {
-                    $numberOfOrders = Order::where(['user_id' => $userId, 'status' => OrderStatus::PAYMENT_SUCCESSFUL->value])->count();
-                    if ($numberOfOrders == 0) {
-                        // find invitee and give reward
-                        $invitee = User::find(auth()->user()->invitee);
-                        // ToDo: do the reward action
-                        Transaction::create([
-                            'user_id' => $invitee->id,
-                            'title' => 'شارژ کیف پول',
-                            'description' => 'شارژ کیف پول بابت دعوت از دوستان',
-                            'amount' => env('INVITE_CHARGE_AMOUNT'),
-                            'type' => TransactionType::INCREASE->value,
-                            'reason' => TransactionReason::CHARGE->value,
-                            'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
-                            'is_reward' => 1
-                        ]);
-                    }
-                }
-            }
-            
-            $chargeTransaction->save();
-            $payTransaction->save();
-            
+            $order->user_id = auth()->user()?->id;
             $order->base_price = $basePriceSum;
             $order->final_price = $finalPriceSum;
-            $order->status = OrderStatus::PAYMENT_SUCCESSFUL->value;
-            $order->transaction_id = $payTransaction->id;
             $order->save();
-
-            $zipResult = createZip($files, $zipName, $now_ts);
-            if ($zipResult['status'] == 1) {
-                // create download link to $zipResult['file']
-            } else {
-                $message .= $zipResult['message'];
-            }
             
-            $status = 'success';
-            $message .= 'سفارش با موفقیت ثبت شد!';
+            // redirect to bank
+            $pay_url = env('PAY_URL');
+            $amount = $finalPriceSum*10;
+            return "$pay_url?amount=$amount&description=$uid";
         } catch (\Exception $exception) {
             $message = $exception->getLine().': '.$exception->getMessage();
             // rollback everything
@@ -254,15 +175,150 @@ class SiteController extends Controller
                 // delete from order items
                 OrderDetail::where('order_id', $order->id)->delete();
 
-                $pay_transaction_id = $order->transaction_id;
                 // delete order
                 $order->delete();
-
-                // delete transactions
-                Transaction::where('id', $pay_transaction_id)->delete();
             }
-        } finally {
+
             return view('site.final', compact('status', 'message', 'now_ts'));
+        }
+    }
+
+    public function payResult(Request $request)
+    {
+        $status = 'fail';
+        $message = '';
+        $services = [];
+        $now_ts = time();
+        $order_id = $request->query('order_id');
+        $pay_status = $request->query('status');
+
+        try {
+            $order = Order::where('uid', $order_id)->first();
+            $user_id = $order->user_id;
+
+            if ($pay_status == 'NOK') {
+                $message = $request->query('message');
+                return view('site.final', compact('status', 'message', 'now_ts'));
+            } else {
+                $ref_id = $request->query('ref_id');
+                $files = [];
+                $now = date('Y-m-d H:i:s', $now_ts);
+                $zipName = resource_path("confs/$now_ts.zip");
+
+                // کسر موجودی کیف پول در صورت وجود
+                $amountToCharge = $order->final_price - auth()->user()?->wallet;
+                
+                $chargeTransaction = new Transaction;
+                $chargeTransaction->title = 'شارژ کیف پول';
+                $chargeTransaction->amount = $amountToCharge;
+                $chargeTransaction->type = TransactionType::INCREASE->value;
+                $chargeTransaction->reason = TransactionReason::CHARGE->value;
+                $chargeTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
+                
+                $payTransaction = new Transaction;
+                $payTransaction->title = 'پرداخت سفارش '.$order->uid;
+                $payTransaction->amount = $order->final_price;
+                $payTransaction->type = TransactionType::DECREASE->value;
+                $payTransaction->reason = TransactionReason::PAYMENT->value;
+                $payTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
+
+                $order_details = OrderDetail::where('order_id', $order->id)->get();
+                foreach ($order_details as $order_detail) {
+                    $count = $order_detail->count;
+                    for ($i=0; $i < $count; $i++) { 
+                        $service = Service::where('product_id', $order_detail->product_id)->where('is_sold', 0)->first();
+                        array_push($services, $service->id);
+                        array_push($files, $service->qr_file);
+                        array_push($files, $service->conf_file);
+                        $service->update([
+                            'is_sold' => 1,
+                            'sold_at' => $now,
+                            'order_detail_id' => $order_detail->id,
+                            'activated_date' => $now
+                        ]);
+                    }
+                }
+
+                if ($user_id) {
+                    $chargeTransaction->user_id = $user_id;
+                    $payTransaction->user_id = $user_id;
+
+                    $serviceUpdate['owner'] = $user_id;
+                    if (auth()->user()->user_type !== 'customer') {
+                        $serviceUpdate['activated_at'] = NULL;
+                    }
+                    Service::whereIn('id', $services)->update($serviceUpdate);
+                    
+                    // delete cart from db
+                    UserCart::where('user_id', $user_id)->delete();
+
+                    // check if first purchase and user has invitee
+                    if (auth()->user()->invitee) {
+                        $numberOfOrders = Order::where([
+                                'user_id' => $user_id, 
+                                'status' => OrderStatus::PAYMENT_SUCCESSFUL->value
+                            ])
+                            ->count();
+                        if ($numberOfOrders == 0) {
+                            // find invitee and give reward
+                            $invitee = User::find(auth()->user()->invitee);
+                            // ToDo: do the reward action
+                            Transaction::create([
+                                'user_id' => $invitee->id,
+                                'title' => 'شارژ کیف پول',
+                                'description' => 'شارژ کیف پول بابت دعوت از دوستان',
+                                'amount' => env('INVITE_CHARGE_AMOUNT'),
+                                'type' => TransactionType::INCREASE->value,
+                                'reason' => TransactionReason::CHARGE->value,
+                                'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                                'is_reward' => 1
+                            ]);
+                        }
+                    }
+                }
+
+                $chargeTransaction->save();
+                $payTransaction->save();
+
+                Order::find($order->id)->update([
+                    'transaction_id' => $payTransaction->id,
+                    'status' => OrderStatus::PAYMENT_SUCCESSFUL->value
+                ]);
+
+                $zipResult = createZip($files, $zipName, $now_ts);
+                if ($zipResult['status'] != 1) {
+                    $message .= $zipResult['message'];
+                }
+
+                $status = 'success';
+                $message .= 'سفارش با موفقیت ثبت شد!';
+
+                return view('site.final', compact('status', 'message', 'now_ts', 'ref_id'));
+            }
+        } catch (\Exception $exception) {
+            $order = Order::where('uid', $order_id)->first();
+            $user_id = $order->user_id;
+            $pay_transaction_id = $order->transaction_id;
+
+            // delete transactions
+            Transaction::find($pay_transaction_id)->delete();
+
+            // TODO: update wallet
+            
+            // undo order status
+            Order::find($order->id)->update([
+                'transaction_id' => NULL,
+                'status' => OrderStatus::PAYMENT_FAILED->value
+            ]);
+            
+            // undo services allocations
+            Service::whereIn('id', $services)->update([
+                'is_sold' => 0,
+                'sold_at' => NULL,
+                'order_detail_id' => NULL,
+                'owner' => NULL,
+                'activated_at' => NULL,
+            ]);
         }
     }
 

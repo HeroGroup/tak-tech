@@ -24,7 +24,7 @@
 
         <div class="card-text" style="display: flex; justify-content: space-between;">
             <label>شماره پیگیری</label>
-            <label>12345678</label>
+            <label>{{isset($ref_id) ? $ref_id : ''}}</label>
           </div>
         </div>
         

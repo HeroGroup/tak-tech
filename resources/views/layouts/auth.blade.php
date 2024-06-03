@@ -70,9 +70,9 @@
                                       <a href="{{route('auth.redirect', ['provider' => 'google'])}}" class="text-center external-login-provider">
                                         <span>ورود با </span> &nbsp; <img src="/assets/img/Google_logo.png" alt="گوگل" />
                                       </a>
-                                      <a href="#" class="text-center external-login-provider">
+                                      <!-- <a href="#" class="text-center external-login-provider">
                                         <span>ورود با </span> &nbsp; <img src="/assets/img/Apple_logo.png" alt="اپل" />
-                                      </a>
+                                      </a> -->
                                     </div>
                                     @endif
                                 </div>

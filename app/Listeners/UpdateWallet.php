@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Events\TransactionCreated;
 use App\Models\User;
@@ -23,7 +24,7 @@ class UpdateWallet
      */
     public function handle(TransactionCreated $event): void
     {
-        if ($event->transaction->user_id) {
+        if ($event->transaction->user_id && $event->transaction->status == TransactionStatus::PAYMENT_SUCCESSFUL->value) {
             $user = User::find($event->transaction->user_id);
 
             $currentWallet = $user->wallet ?? 0;

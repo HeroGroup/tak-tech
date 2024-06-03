@@ -463,7 +463,8 @@
                 xhr.onreadystatechange = () => {
                     if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                         if (render) {
-                            document.write(xhr.response);
+                            // document.write(xhr.response);
+                            window.location = xhr.response;
                         }
                     }
                 };
