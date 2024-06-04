@@ -141,6 +141,7 @@ class SiteController extends Controller
                         }
                     }
                 }
+                $productFinalPrice = $productFinalPrice < 0 ? 0 : $productFinalPrice;
                 $orderDetail['product_final_price'] = $productFinalPrice;
 
                 $order_detail_record = OrderDetail::create($orderDetail);
@@ -157,6 +158,7 @@ class SiteController extends Controller
                     $finalPriceSum = $finalPriceSum - $discount->fixed_amount;
                 }
                 $order->discount_id = $discount->id;
+                $finalPriceSum = $finalPriceSum < 0 ? 0 : $finalPriceSum;
             }
 
             $order->user_id = auth()->user()?->id;

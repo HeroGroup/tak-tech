@@ -492,6 +492,7 @@
                                     } else if (discountDetails[i].fixed_amount) {
                                         cart[index].finalPrice = cart[index].price - discountDetails[i].fixed_amount;
                                     }
+                                    cart[index].finalPrice = cart[index].finalPrice < 0 ? 0 : cart[index].finalPrice;
                                     applied = true;
                                 }
                             }
@@ -513,6 +514,8 @@
                         } else if (discount.fixed_amount) {
                             finalPrice = basePrice - discount.fixed_amount;
                         }
+
+                        finalPrice = finalPrice < 0 ? 0 : finalPrice;
 
                         var cartSums = document.getElementsByClassName("cart-sum");
                         Array.prototype.forEach.call(cartSums, function(element) {
