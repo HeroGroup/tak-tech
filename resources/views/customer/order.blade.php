@@ -16,10 +16,10 @@
             <ul class="nk-top-products">
                 <li class="item">
                     <div class="info">
-                        <label class="text-gray">شماره پیگیری</label>
+                        <label class="text-gray">شناسه سفارش</label>
                     </div>
                     <div class="total">
-                        <label>{{$order->transaction_id}}</label>
+                        <label>{{$order->uid}}</label>
                     </div>
                 </li>
                 <li class="item">

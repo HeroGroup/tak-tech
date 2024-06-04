@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Traits\UpdatePassword;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 require_once app_path('Helpers/utils.php');
 
@@ -23,9 +24,13 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        $l_session = LoginSession::where('user_id', auth()->user()->id)->orderByDesc('created_at')->first();
+        $user_id = auth()->user()->id;
+        $l_session = LoginSession::where('user_id', $user_id)->orderByDesc('created_at')->first();
+        $active_services_count = Service::where('owner', $user_id)->where('is_enabled', 1)->count();
+        $inactive_services_count = Service::where('owner', $user_id)->where('is_enabled', 0)->count();
+        $orders_count = Order::where('user_id', $user_id)->where('status', OrderStatus::PAYMENT_SUCCESSFUL->value)->count();
         
-        return view('customer.dashboard', compact('l_session'));
+        return view('customer.dashboard', compact('l_session', 'active_services_count', 'inactive_services_count', 'orders_count'));
     }
 
     public function profile()
@@ -107,11 +112,11 @@ class DashboardController extends Controller
         }
     }
 
-    public function downloadService($id) {
+    public function downloadService($id, $files='all') {
         try {
             $service = Service::where('id', $id)->where('owner', auth()->user()->id)->first();
 
-            if ($service->conf_file && $service->qr_file) {
+            if ($files == 'all' && $service->conf_file && $service->qr_file) {
                 $now_ts = time();
                 $zipName = resource_path("confs/$now_ts.zip");
                 $files = [$service->conf_file, $service->qr_file];
@@ -120,6 +125,8 @@ class DashboardController extends Controller
                     $sc = new SiteController();
                     return $sc->downloadZip($now_ts);
                 }
+            } else if ($files == 'conf' && $service->conf_file) {
+                return response()->download($service->conf_file);
             }
         } catch (\Exception $exception) {
             //

@@ -133,7 +133,7 @@ class SiteController extends Controller
                     foreach ($discountDetails as $discountDetail) {
                         if ($key == $discountDetail->product_id) {
                             if ($discountDetail->discount_percent) {
-                                $productFinalPrice = $productFinalPrice * (100 - $discountDetail->discount_percent);
+                                $productFinalPrice = $productFinalPrice * (100 - $discountDetail->discount_percent) / 100;
                             } else if ($discountDetail->fixed_amount) {
                                 $productFinalPrice = $productFinalPrice - $discountDetail->fixed_amount;
                             }
@@ -152,7 +152,7 @@ class SiteController extends Controller
             if (isset($discount)) {
                 // maniuplate order final price
                 if ($discount->discount_percent) {
-                    $finalPriceSum = $finalPriceSum * (100 - $discount->discount_percent);
+                    $finalPriceSum = $finalPriceSum * (100 - $discount->discount_percent) / 100;
                 } else if ($discount->fixed_amount) {
                     $finalPriceSum = $finalPriceSum - $discount->fixed_amount;
                 }
@@ -163,11 +163,15 @@ class SiteController extends Controller
             $order->base_price = $basePriceSum;
             $order->final_price = $finalPriceSum;
             $order->save();
-            
-            // redirect to bank
-            $pay_url = env('PAY_URL');
-            $amount = $finalPriceSum*10;
-            return "$pay_url?amount=$amount&description=$uid";
+
+            $amount = ($finalPriceSum - auth()->user()?->wallet)*10;
+            if ($amount > 0) {
+                // redirect to bank
+                $pay_url = env('PAY_URL');
+                return "$pay_url?amount=$amount&description=$uid";
+            }
+
+            return "/payResult?order_id=$uid&status=OK&ref_id=";
         } catch (\Exception $exception) {
             $message = $exception->getLine().': '.$exception->getMessage();
             // rollback everything
@@ -208,19 +212,26 @@ class SiteController extends Controller
                 // کسر موجودی کیف پول در صورت وجود
                 $amountToCharge = $order->final_price - auth()->user()?->wallet;
                 
-                $chargeTransaction = new Transaction;
-                $chargeTransaction->title = 'شارژ کیف پول';
-                $chargeTransaction->amount = $amountToCharge;
-                $chargeTransaction->type = TransactionType::INCREASE->value;
-                $chargeTransaction->reason = TransactionReason::CHARGE->value;
-                $chargeTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
-                
-                $payTransaction = new Transaction;
-                $payTransaction->title = 'پرداخت سفارش '.$order->uid;
-                $payTransaction->amount = $order->final_price;
-                $payTransaction->type = TransactionType::DECREASE->value;
-                $payTransaction->reason = TransactionReason::PAYMENT->value;
-                $payTransaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
+                if ($amountToCharge > 0) {
+                    $chargeTransaction = Transaction::create([
+                        'title' => 'شارژ کیف پول',
+                        'amount' => $amountToCharge,
+                        'type' => TransactionType::INCREASE->value,
+                        'reason' => TransactionReason::CHARGE->value,
+                        'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                        'user_id' => $user_id,
+                        'description' => "شماره پیگیری: $ref_id"
+                    ]);
+                }
+
+                $payTransaction = Transaction::create([
+                    'title' => 'پرداخت سفارش '.$order->uid,
+                    'amount' => $order->final_price,
+                    'type' => TransactionType::DECREASE->value,
+                    'reason' => TransactionReason::PAYMENT->value,
+                    'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                    'user_id' => $user_id,
+                ]);
 
                 $order_details = OrderDetail::where('order_id', $order->id)->get();
                 foreach ($order_details as $order_detail) {
@@ -240,9 +251,6 @@ class SiteController extends Controller
                 }
 
                 if ($user_id) {
-                    $chargeTransaction->user_id = $user_id;
-                    $payTransaction->user_id = $user_id;
-
                     $serviceUpdate['owner'] = $user_id;
                     if (auth()->user()->user_type !== 'customer') {
                         $serviceUpdate['activated_at'] = NULL;
@@ -276,9 +284,6 @@ class SiteController extends Controller
                         }
                     }
                 }
-
-                $chargeTransaction->save();
-                $payTransaction->save();
 
                 Order::find($order->id)->update([
                     'transaction_id' => $payTransaction->id,

@@ -95,7 +95,7 @@ Route::prefix('customer')->group(function () {
             Route::get('/orders/{uid}', [CustomerDashboardController::class, 'showOrder'])->name('orders.show');
             Route::get('/services', [CustomerDashboardController::class, 'services'])->name('services');
             Route::put('/services/{id}/updateNote', [CustomerDashboardController::class, 'updateServiceNote'])->name('services.updateNote');
-            Route::get('/services/{id}/download', [CustomerDashboardController::class, 'downloadService'])->name('services.download');
+            Route::get('/services/{id}/download/{files}', [CustomerDashboardController::class, 'downloadService'])->name('services.download');
             Route::get('/transactions', [CustomerDashboardController::class, 'transactions'])->name('transactions');
             Route::get('/notifications', [CustomerDashboardController::class, 'notifications'])->name('notifications');
             Route::post('/notifications/markAllAsRead', [CustomerDashboardController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');

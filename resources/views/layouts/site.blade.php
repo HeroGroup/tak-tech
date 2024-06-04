@@ -231,7 +231,13 @@
                 <ul class="cart-list" id="cart-list"></ul>
                 <hr />
                 <div style="display: flex; justify-content: space-between;">
-                    <div style="flex: 1">مبلغ قابل پرداخت</div>
+                    <div style="flex: 1">موجودی کیف پول</div>
+                    <div style="flex: 1; text-align: left;">
+                        {{number_format(auth()->user()?->wallet) ?? 0}} تومان
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1">جمع سبد خرید</div>
                     <div style="flex: 1; text-align: left;">
                         <span class="cart-sum"></span>
                     </div>
@@ -482,7 +488,7 @@
                             for (var i=0; i < discountDetails.length; i++) {
                                 if (index == discountDetails[i].product_id) {
                                     if (discountDetails[i].discount_percent) {
-                                        cart[index].finalPrice = cart[index].price * (100 - discountDetails[i].discount_percent);
+                                        cart[index].finalPrice = cart[index].price * (100 - discountDetails[i].discount_percent) / 100;
                                     } else if (discountDetails[i].fixed_amount) {
                                         cart[index].finalPrice = cart[index].price - discountDetails[i].fixed_amount;
                                     }
@@ -503,7 +509,7 @@
                         });
 
                         if (discount.discount_percent) {
-                            finalPrice = basePrice - (100 - discount.discount_percent);
+                            finalPrice = basePrice * (100 - discount.discount_percent) / 100;
                         } else if (discount.fixed_amount) {
                             finalPrice = basePrice - discount.fixed_amount;
                         }
@@ -515,13 +521,14 @@
                                 <div class="text-success">${new Intl.NumberFormat().format(finalPrice)} تومان</div>
                             `;
                         });
-                        applied = tue;
+                        applied = true;
                     }
                 }
                 return applied;
             }
 
             function checkDiscountCode() {
+                removeDiscountCode(false);
                 var code = document.getElementById("discount-code");
 
                 var xhr = new XMLHttpRequest();
@@ -557,10 +564,12 @@
                 xhr.send();
             }
 
-            function removeDiscountCode() {
-                // clear discount code input
-                document.getElementById("discount-code").value = "";
-                
+            function removeDiscountCode(clear=true) {
+                if (clear) {
+                    // clear discount code input
+                    document.getElementById("discount-code").value = "";
+                }
+
                 // remove all finalPrices from cart
                 jQuery.each(cart, function(index, value) {
                     delete cart[index].finalPrice;

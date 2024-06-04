@@ -5,7 +5,6 @@
       <table class="datatable-init nowrap nk-tb-list is-separate" data-auto-responsive="false">
           <thead>
             <tr class="nk-tb-item nk-tb-head">
-              <th class="nk-tb-col"><span>شناسه سفارش</span></th>
               <th class="nk-tb-col tb-col-md"><span>زمان</span></th>
               <th class="nk-tb-col"><span>وضعیت</span></th>
               <th class="nk-tb-col"><span>قیمت</span></th>
@@ -15,9 +14,6 @@
             <tbody>
             @foreach ($orders as $order)
             <tr class="nk-tb-item">
-                <td class="nk-tb-col">
-                    <span class="tb-sub">{{$order->uid}}</span>
-                </td>
                 <td class="nk-tb-col tb-col-md">
                     <span class="tb-lead">{{jdate('Y/m/d ساعت H:i', $order->created_at->timestamp)}}</span>
                 </td>

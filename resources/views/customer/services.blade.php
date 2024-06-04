@@ -81,7 +81,7 @@
         <td class="nk-tb-col nk-tb-col-tools">
           <ul class="nk-tb-actions">
             <li>
-              <a href="{{route('customer.services.download',$service->id)}}" class="btn btn-icon btn-trigger btn-tooltip">
+              <a href="{{route('customer.services.download',['id'=>$service->id,'files'=>'all'])}}" class="btn btn-icon btn-trigger btn-tooltip">
                 <em class="icon ni ni-download"></em> دانلود
               </a>
               <a href="#" class="btn btn-icon btn-trigger btn-tooltip" data-bs-toggle="modal" data-bs-target="#cartModal-{{$service->id}}">
