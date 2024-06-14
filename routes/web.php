@@ -52,35 +52,35 @@ Route::prefix('admin')->group(function () {
 
             Route::resource('categories', CategoryController::class)->only([
                 'index', 'store', 'update', 'destroy'
-            ]);
+            ])->middleware('access.category');
 
             Route::resource('products', ProductController::class)->only([
                 'index', 'store', 'update', 'destroy'
-            ]);
-            Route::get('/products/{id}/importServices', [ProductController::class, 'importServices'])->name('products.importServices');
-            Route::post('/products/importServices', [ProductController::class, 'importServicesAction'])->name('products.importServices.post');
+            ])->middleware('access.product');
+            Route::get('/products/{id}/importServices', [ProductController::class, 'importServices'])->name('products.importServices')->middleware('access.product');
+            Route::post('/products/importServices', [ProductController::class, 'importServicesAction'])->name('products.importServices.post')->middleware('access.product');
 
-            Route::resource('discounts', DiscountController::class)->except(['show']);
+            Route::resource('discounts', DiscountController::class)->except(['show'])->middleware('access.discount');
 
             Route::prefix('users')->group(function () {
                 Route::name('users.')->group(function () {
-                    Route::get('/', [UserController::class, 'index'])->name('index');
-                    Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
+                    Route::get('/', [UserController::class, 'index'])->name('index')->middleware('access.user');
+                    Route::put('/update/{id}', [UserController::class, 'update'])->name('update')->middleware('access.user');
                     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
                     Route::put('/updateProfile', [UserController::class, 'updateProfile'])->name('updateProfile');
                     Route::get('/changePassword', [UserController::class, 'changePassword'])->name('changePassword');
                     Route::put('/updatePassword', [UserController::class, 'updatePassword'])->name('updatePassword');
-                    Route::post('/impersonate', [UserController::class, 'impersonate'])->name('impersonate');
-                    Route::get('/{id}/privileges', [UserController::class, 'privileges'])->name('privileges');
-                    Route::put('/updatePrivileges', [UserController::class, 'updatePrivileges'])->name('updatePrivileges');
+                    Route::post('/impersonate', [UserController::class, 'impersonate'])->name('impersonate')->middleware('access.user');
+                    Route::get('/{id}/privileges', [UserController::class, 'privileges'])->name('privileges')->middleware('access.user');
+                    Route::put('/updatePrivileges', [UserController::class, 'updatePrivileges'])->name('updatePrivileges')->middleware('access.user');
                 });
             });
 
-            Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+            Route::get('/services', [ServiceController::class, 'index'])->name('services.index')->middleware('access.service');
             Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
-            Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
-            Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
-            Route::get('/orders', [DashboardController::class, 'orders'])->name('orders');
+            Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions')->middleware('access.transaction');
+            Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store')->middleware('access.transaction');
+            Route::get('/orders', [DashboardController::class, 'orders'])->name('orders')->middleware('access.order');
         });
     });
 });
