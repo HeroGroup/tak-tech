@@ -485,7 +485,7 @@
                             for (var i=0; i < discountDetails.length; i++) {
                                 if (index == discountDetails[i].product_id) {
                                     if (discountDetails[i].discount_percent) {
-                                        cart[index].finalPrice = cart[index].price * (100 - discountDetails[i].discount_percent) / 100;
+                                        cart[index].finalPrice = cart[index].price * ((100 - parseInt(discountDetails[i].discount_percent)) / 100);
                                     } else if (discountDetails[i].fixed_amount) {
                                         cart[index].finalPrice = cart[index].price - discountDetails[i].fixed_amount;
                                     }
@@ -507,7 +507,7 @@
                         });
 
                         if (discount.discount_percent) {
-                            finalPrice = basePrice * (100 - discount.discount_percent) / 100;
+                            finalPrice = basePrice * (100 - parseInt(discount.discount_percent)) / 100;
                         } else if (discount.fixed_amount) {
                             finalPrice = basePrice - discount.fixed_amount;
                         }
