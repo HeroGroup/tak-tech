@@ -84,4 +84,14 @@ class UserController extends Controller
 
         return redirect()->to(RouteServiceProvider::HOME);
     }
+
+    public function privileges($id)
+    {
+        //
+    }
+
+    public function updatePrivileges(Request $request)
+    {
+        //
+    }
 }

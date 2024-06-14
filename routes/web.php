@@ -71,6 +71,8 @@ Route::prefix('admin')->group(function () {
                     Route::get('/changePassword', [UserController::class, 'changePassword'])->name('changePassword');
                     Route::put('/updatePassword', [UserController::class, 'updatePassword'])->name('updatePassword');
                     Route::post('/impersonate', [UserController::class, 'impersonate'])->name('impersonate');
+                    Route::get('/{id}/privileges', [UserController::class, 'privileges'])->name('privileges');
+                    Route::put('/updatePrivileges', [UserController::class, 'updatePrivileges'])->name('updatePrivileges');
                 });
             });
 

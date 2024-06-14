@@ -57,7 +57,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'is_admin' => 'boolean',
+        'is_superadmin' => 'boolean',
         'category_access' => 'boolean',
         'product_access' => 'boolean',
         'service_access' => 'boolean',
@@ -67,10 +67,10 @@ class User extends Authenticatable
         'user_access' => 'boolean',
     ];
 
-    protected function isAdmin(): Attribute
+    protected function isSuperadmin(): Attribute
     {
         return Attribute::make(
-            get: fn () => in_array($this->user_type, [UserType::SUPERADMIN->value, UserType::ADMIN->value]),
+            get: fn () => $this->user_type == UserType::SUPERADMIN->value,
         );
     }
 
