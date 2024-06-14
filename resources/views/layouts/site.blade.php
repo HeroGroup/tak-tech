@@ -512,7 +512,7 @@
                             finalPrice = basePrice - discount.fixed_amount;
                         }
 
-                        finalPrice = finalPrice < 0 ? 0 : finalPrice;
+                        finalPrice = finalPrice <= 0 ? 0 : finalPrice;
 
                         var cartSums = document.getElementsByClassName("cart-sum");
                         Array.prototype.forEach.call(cartSums, function(element) {
@@ -554,8 +554,6 @@
                         if (!applied) {
                             responseText.innerHTML = 'این کد تخفیف برای محصولات انتخابی شما معتبر نمی باشد';
                         }
-                        // update cart element
-                        updateCartElement();
                     } else {
                         // alert incoming message
                         responseText.innerHTML = response.message;
