@@ -7,7 +7,7 @@ $order_id = $_GET['order_id'];
 $_authority = $_GET['Authority'];
 $status = $_GET['Status'];
 
-$base_redirect = "https://takvpn.com/payResult?order_id=$order_id&status=$status";
+$base_redirect = "https://meionite.eu/payResult?order_id=$order_id&status=$status";
 // $base_redirect = "http://localhost:8000/payResult?order_id=$order_id&status=$status";
 
 if ($status == "NOK") {
