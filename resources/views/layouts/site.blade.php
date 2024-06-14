@@ -554,6 +554,8 @@
                         if (!applied) {
                             responseText.innerHTML = 'این کد تخفیف برای محصولات انتخابی شما معتبر نمی باشد';
                         }
+                        // update cart element
+                        updateCartElement();
                     } else {
                         // alert incoming message
                         responseText.innerHTML = response.message;
