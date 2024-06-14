@@ -22,14 +22,28 @@
                     <div class="header-main header-main-s1 is-sticky is-transparent">
                         <div class="container header-container">
                             <div class="header-wrap">
-
                                 <div class="header-toggle">
-                                    <button class="menu-toggler" data-target="mainNav">
+                                    <button class="menu-toggler" data-target="sidebarMenu">
                                         <em class="menu-on icon ni ni-menu"></em>
                                         <em class="menu-off icon ni ni-cross"></em>
                                     </button>
                                 </div>
-
+                                <nav class="header-menu" data-content="sidebarMenu">
+                                    <ul class="menu-list">
+                                        <li class="menu-item"><a href="#home" class="menu-link">صفحه اصلی</a></li>
+                                        <li class="menu-item"><a href="#service" class="menu-link">خدمات</a></li>
+                                        <li class="menu-item"><a href="#feature" class="menu-link">امکانات</a></li>
+                                        <li class="menu-item"><a href="#pricing" class="menu-link">محصولات</a></li>
+                                        <li class="menu-item"><a href="#reviews" class="menu-link">نظرات</a></li>
+                                    </ul>
+                                    @unless (auth()->user())
+                                    <ul class="menu-btns">
+                                        <li>
+                                            <a href="{{route('auth.login')}}" class="btn btn-primary btn-lg"> ورود / ثبت نام</a>
+                                        </li>
+                                    </ul>
+                                    @endunless
+                                </nav>
                                 <div class="nk-header-tools">
                                     <ul class="nk-quick-nav">
                                         <li class="dropdown carts-dropdown hide-mb-xs">
@@ -116,23 +130,6 @@
                                         <img class="logo-dark logo-img" src="/assets/images/logo-dark.png" srcset="/assets/images/logo-dark2x.png 2x" alt="لوگوی تاریک" />
                                     </a>
                                 </div> -->
-
-                                <nav class="header-menu" data-content="mainNav">
-                                    <ul class="menu-list">
-                                        <li class="menu-item"><a href="#home" class="menu-link">صفحه اصلی</a></li>
-                                        <li class="menu-item"><a href="#service" class="menu-link">خدمات</a></li>
-                                        <li class="menu-item"><a href="#feature" class="menu-link">امکانات</a></li>
-                                        <li class="menu-item"><a href="#pricing" class="menu-link">محصولات</a></li>
-                                        <li class="menu-item"><a href="#reviews" class="menu-link">نظرات</a></li>
-                                    </ul>
-                                    @unless (auth()->user())
-                                    <ul class="menu-btns">
-                                        <li>
-                                            <a href="{{route('auth.login')}}" class="btn btn-primary btn-lg"> ورود / ثبت نام</a>
-                                        </li>
-                                    </ul>
-                                    @endunless
-                                </nav>
                             </div>
                             <!-- .header-warp-->
                         </div>
@@ -264,8 +261,8 @@
         </div>
         <!-- app-root @e -->
         <!-- JavaScript -->
-        <script src="/assets/js/bundle.js"></script>
-        <script src="/assets/js/scripts.js"></script>
+        <script src="/assets/js/bundle.site.js"></script>
+        <script src="/assets/js/scripts.site.js"></script>
         <script src="/assets/js/logout.js"></script>
 
         <script>
