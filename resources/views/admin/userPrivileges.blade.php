@@ -1,7 +1,7 @@
-@extends('layouts.admin.main', ['pageTitle' => 'Users', 'active' => 'users'])
+@extends('layouts.admin.main', ['pageTitle' => "$user->email ($user->user_type)", 'active' => 'users'])
 @section('content')
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card shadow mb-4">
       <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Privileges</h6>

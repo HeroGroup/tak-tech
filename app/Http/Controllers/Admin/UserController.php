@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Privileges;
 use App\Enums\UserType;
 use App\Models\User;
+use App\Models\UserPrivilege;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
@@ -87,11 +89,36 @@ class UserController extends Controller
 
     public function privileges($id)
     {
-        //
+        try {
+            $privileges = array_column(Privileges::cases(), 'name', 'value');
+            $user_privileges = UserPrivilege::where('user_id', $id)->pluck('action')->toArray();
+            $user = User::find($id);
+            
+            return view('admin.userPrivileges', compact('user', 'privileges', 'user_privileges'));
+        } catch (\Exeption $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
     }
 
     public function updatePrivileges(Request $request)
     {
-        //
+        try {
+            $user_id = $request->user_id;
+            UserPrivilege::where('user_id', $user_id)->delete();
+            
+            $privileges = $request->privileges ?? [];
+            foreach ($privileges as $privilege)
+            {
+                UserPrivilege::create([
+                    'user_id' => $user_id,
+                    'action' => $privilege
+                ]);
+            }
+            
+            return back()->with('message', "updated successfully!")->with('type', 'success');
+        } catch (\Exeption $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+        
     }
 }

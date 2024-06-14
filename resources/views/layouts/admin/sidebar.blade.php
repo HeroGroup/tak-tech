@@ -31,27 +31,32 @@
     <!-- Divider -->
     <hr class="sidebar-divider my-0">
 
+    @if(auth()->user()->isSuperadmin || auth()->user()->categoryAccess)
     <li class="nav-item" id="categories">
         <a class="nav-link" href="{{route('admin.categories.index')}}">
             <i class="fas fa-fw fa-th"></i>
             <span>Categories</span>
         </a>
     </li>
+    @endif
 
+    @if(auth()->user()->isSuperadmin || auth()->user()->productAccess)
     <li class="nav-item" id="products">
         <a class="nav-link" href="{{route('admin.products.index')}}">
             <i class="fas fa-fw fa-box-open"></i>
             <span>Products</span>
         </a>
     </li>
+    @endif
 
-
+    @if(auth()->user()->isSuperadmin || auth()->user()->serviceAccess)
     <li class="nav-item" id="services">
         <a class="nav-link" href="{{route('admin.services.index')}}">
             <i class="fas fa-fw fa-server"></i>
             <span>Services</span>
         </a>
     </li>
+    @endif
 
     <!-- Divider -->
     <hr class="sidebar-divider my-0">
@@ -66,37 +71,44 @@
     <!-- Divider -->
     <hr class="sidebar-divider my-0">
 
+    @if(auth()->user()->isSuperadmin || auth()->user()->transactionAccess)
     <li class="nav-item" id="transactions">
         <a class="nav-link" href="{{route('admin.transactions', 'all')}}">
             <i class="fas fa-fw fa-euro-sign"></i>
             <span>Transactions</span>
         </a>
     </li>
+    @endif
 
+    @if(auth()->user()->isSuperadmin || auth()->user()->orderAccess)
     <li class="nav-item" id="orders">
         <a class="nav-link" href="{{route('admin.orders', 'all')}}">
             <i class="fas fa-fw fa-shopping-cart"></i>
             <span>Orders</span>
         </a>
     </li>
+    @endif
 
+    @if(auth()->user()->isSuperadmin || auth()->user()->discountAccess)
     <li class="nav-item" id="discounts">
         <a class="nav-link" href="{{route('admin.discounts.index')}}">
             <i class="fas fa-fw fa-percent"></i>
             <span>Discounts</span>
         </a>
     </li>
+    @endif
 
-<!-- Divider -->
-<hr class="sidebar-divider my-0">
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
 
-<li class="nav-item" id="users">
-    <a class="nav-link" href="{{route('admin.users.index')}}">
-        <i class="fas fa-fw fa-users"></i>
-        <span>Users</span>
-    </a>
-</li>
-
+    @if(auth()->user()->isSuperadmin || auth()->user()->userAccess)
+    <li class="nav-item" id="users">
+        <a class="nav-link" href="{{route('admin.users.index')}}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Users</span>
+        </a>
+    </li>
+    @endif
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 

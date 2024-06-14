@@ -39,6 +39,11 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</a>
                                 
                                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="actionsDropdown">
+                                    @if(auth()->user()->isSuperadmin)
+                                    <a href="{{route('admin.users.privileges',$user->id)}}" class="dropdown-item">
+                                        <i class="fa fa-key"></i> Privileges
+                                    </a>
+                                    @endif
                                     <a href="{{route('admin.orders', ['filter' => 'all', 'userId' => $user->id])}}" class="dropdown-item">
                                         <i class="fa fa-shopping-cart"></i> Orders
                                     </a>
