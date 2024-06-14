@@ -120,8 +120,8 @@ class DiscountController extends Controller
             $discount->is_active = $request->is_active == "on" ? 1 : 0;
             $discount->save();
             
+            DiscountDetail::where('discount_id', $discount->id)->delete();
             if ($request->product_id) {
-                DiscountDetail::where('discount_id', $discount->id)->delete();
                 $this->createDiscountDetailsFromRequest(
                     $discount->id,
                     $request->product_id,

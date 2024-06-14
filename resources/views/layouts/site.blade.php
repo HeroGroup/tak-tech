@@ -334,17 +334,17 @@
 
                     cartKeys.forEach((item) => {
                         var itemSum = cart[item].price * cart[item].count;
-                        var itemFinalSum = 0;
-                        if (cart[item].finalPrice) {
+                        var itemFinalSum = -1;
+                        if (cart[item].finalPrice >= 0) {
                             itemFinalSum = cart[item].finalPrice * cart[item].count;
                         }
                         totalSum += itemSum;
-                        totalFinalSum += itemFinalSum > 0 ? itemFinalSum : itemSum;
+                        totalFinalSum += itemFinalSum >= 0 ? itemFinalSum : itemSum;
 
                         list += `<li class="cart-item" style="padding:10px;display:flex;">
                             <div style="flex: 2">${cart[item].title}</div>
                             <div style="flex: 1; text-align: center;">${cart[item].count}</div>`;
-                            if (itemFinalSum > 0) {
+                            if (itemFinalSum >= 0) {
                                 list += 
                                 `<div>
                                     <div style="flex: 2; text-align: end;"><s>${new Intl.NumberFormat().format(itemSum)} تومان</s></div>

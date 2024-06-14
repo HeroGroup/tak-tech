@@ -98,7 +98,7 @@
                 </td>
                 <td><input type="number" class="form-control" name="product_discount_percent[]" value="{{$detail->discount_percent}}" /></td>
                 <td><input type="number" class="form-control" name="product_fixed_amount[]" value="{{$detail->fixed_amount}}" /></td>
-                <td><button type="button" class="btn btn-danger" onclick="document.getElementById('{{$detailKey}}').remove()"><i class="fas fa-trash"></i></td>
+                <td><button type="button" class="btn btn-danger" onclick="removeDiscountDetail('{{$detailKey}}')"><i class="fas fa-trash"></i></td>
               </tr>
             @endforeach
           </tbody>
@@ -130,7 +130,7 @@
         </td>
         <td><input type="number" class="form-control" name="product_discount_percent[]" /></td>
         <td><input type="number" class="form-control" name="product_fixed_amount[]" /></td>
-        <td><button type="button" class="btn btn-danger" onclick="document.getElementById(${rownum}).remove()"><i class="fas fa-trash"></i></td>
+        <td><button type="button" class="btn btn-danger" onclick="removeDiscountDetail(${rownum})"><i class="fas fa-trash"></i></td>
     `;
 
     let tr = document.createElement("tr");
@@ -139,6 +139,10 @@
     $('select[name="product_id[]"]').selectize({
       sortField: 'text'
     });
+  }
+
+  function removeDiscountDetail(num) {
+    document.getElementById(num).remove();
   }
 </script>
 @endsection
