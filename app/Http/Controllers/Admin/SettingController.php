@@ -8,13 +8,17 @@ use Illuminate\Support\Facades\Artisan;
 
 class SettingController extends Controller
 {
-    public function dbMigrate($rollback=false)
+    public function dbMigrate($token, $rollback=false)
     {
         try {
-            if ($rollback) {
-                Artisan::call('migrate:rollback');
+            if ($token == env('MIGRATION_TOKEN')) {
+                if ($rollback) {
+                    Artisan::call('migrate:rollback');
+                } else {
+                    Artisan::call('migrate');
+                }
             } else {
-                Artisan::call('migrate');
+                return "invalid token!";
             }
             
             return Artisan::output();

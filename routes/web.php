@@ -13,6 +13,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/admin/setting/dbMigrate/{token}/{rollback?}', [SettingController::class, 'dbMigrate']);
+
 Route::get('/', [SiteController::class, 'index'])->name('index');
 Route::post('/addToCart', [SiteController::class, 'addToCart'])->name('addToCart');
 Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
@@ -45,7 +47,6 @@ Route::prefix('admin')->group(function () {
 
     Route::name('admin.')->group(function () {
         Route::middleware(['auth', 'verified', 'admin', 'active'])->group(function() {
-            Route::get('/setting/dbMigrate/{rollback?}', [SettingController::class, 'dbMigrate']);
 
             Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
