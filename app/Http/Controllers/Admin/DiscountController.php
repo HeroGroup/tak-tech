@@ -150,12 +150,12 @@ class DiscountController extends Controller
 
     public function checkDiscountCode($code, $returnType='json') {
         try {
-            if (! auth()->user()) {
-                if ($returnType == 'array') {
-                    return ['status' => -1];
-                }
-                return $this->fail('جهت استفاده از کد تخفیف، ابتدا لاگین کنید.');
-            }
+            // if (! auth()->user()) {
+            //     if ($returnType == 'array') {
+            //         return ['status' => -1];
+            //     }
+            //     return $this->fail('جهت استفاده از کد تخفیف، ابتدا لاگین کنید.');
+            // }
 
             $discount = Discount::where('code', $code)->first();
             if ($discount) {
