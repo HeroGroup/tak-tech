@@ -1,5 +1,5 @@
 <!-- sidebar @s -->
-<div class="nk-sidebar nk-sidebar-fixed is-compact is-light" data-content="sidebarMenu">
+<div class="nk-sidebar nk-sidebar-fixed is-light" data-content="sidebarMenu">
     <div class="nk-sidebar-element nk-sidebar-head">
         <div class="nk-sidebar-brand">
             <a href="/" class="logo-link nk-sidebar-logo">

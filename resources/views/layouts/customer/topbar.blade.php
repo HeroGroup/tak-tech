@@ -3,7 +3,9 @@
     <div class="container-fluid">
         <div class="nk-header-wrap">
             <div class="nk-menu-trigger d-xl-none ms-n1">
-                <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
+                <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu">
+                    <em class="icon ni ni-menu"></em>
+                </a>
             </div>
             <h4>{{$pageTitleFa}}</h4>
             <div class="nk-header-tools">
