@@ -168,12 +168,15 @@ class DiscountController extends Controller
                 }
 
                 // check if user has used this code before
-                $hasUsed = Order::where(['user_id' => auth()->user()->id, 'discount_id' => $discount->id, 'status' => OrderStatus::PAYMENT_SUCCESSFUL->value])->count();
-                if ($hasUsed > 0) {
-                    if ($returnType == 'array') {
-                        return ['status' => -1];
+                if (auth()->user())
+                {
+                    $hasUsed = Order::where(['user_id' => auth()->user()->id, 'discount_id' => $discount->id, 'status' => OrderStatus::PAYMENT_SUCCESSFUL->value])->count();
+                    if ($hasUsed > 0) {
+                        if ($returnType == 'array') {
+                            return ['status' => -1];
+                        }
+                        return $this->fail('از این کد قبلا استفاده کرده اید.');
                     }
-                    return $this->fail('از این کد قبلا استفاده کرده اید.');
                 }
                 
                 // check date
