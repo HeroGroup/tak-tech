@@ -33,7 +33,7 @@
       <div style="width: 100%; text-align:c center;padding: 8px;">
         <input type="email" name="email" id="email" />
         <button class="btn btn-info" onclick="sendConfigToEmail('{{$now_ts}}')">ارسال تنظیمات به ایمیل</button>
-        <div class="form-text text-danger d-none" id="end-email-response"></div>
+        <div class="form-text text-danger d-none" id="email-response"></div>
       </div>
       <hr/>
       @endif
@@ -56,7 +56,7 @@
       if (!email) {
         return;
       }
-      var responseText = document.getElementById("send-email-response");
+      var responseText = document.getElementById("email-response");
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "{{route('sendConfigToEmail')}}", true);
       xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
