@@ -142,7 +142,7 @@ class SiteController extends Controller
                             $orderDetail['discount_detail_id'] = $discountDetail->id;
                         }
                     }
-                    $order->discount_id = $discount->id;
+                    $order->discount_id = $discountDetail->discount_id;
                 }
                 $productFinalPrice = $productFinalPrice < 0 ? 0 : $productFinalPrice;
                 $orderDetail['product_final_price'] = $productFinalPrice;
