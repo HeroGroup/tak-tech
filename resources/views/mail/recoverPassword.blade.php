@@ -1,4 +1,4 @@
-<h1>recover password</h1>
-<p>here is your temporary password. Login with it and change it ASAP.</p>
+<h1>بازیابی رمز عبور</h1>
+<p>رمز عبور موقت شما به شرح زیر می باشد. لطفا در اولین فرصت از منوی پروفایل در داشبوردتان آن را تغییر دهید.</p>
 
 <b>{{$tempPassword}}</b>

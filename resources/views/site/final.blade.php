@@ -31,11 +31,9 @@
       <a href="{{route('downloadZip',$now_ts)}}" target="blank" class="btn btn-success">دانلود تنظیمات</a>
       <hr/>
       <div style="width: 100%; text-align:c center;padding: 8px;">
-        <form action="#" method="#">
-          @csrf
-          <input type="email" name="email" id="email" />
-          <input type="submit" value="ارسال تنظیمات به ایمیل" class="btn btn-info" />
-        </form>
+        <input type="email" name="email" id="email" />
+        <button class="btn btn-info" onclick="sendConfigToEmail('{{$now_ts}}')">ارسال تنظیمات به ایمیل<button>
+        <div class="form-text text-danger d-none" id="end-email-response"></div>
       </div>
       <hr/>
       @endif
@@ -48,6 +46,40 @@
     var status = "{{$status}}";
     if (status === 'success') {
       localStorage.removeItem("cart");
+    }
+
+    function sendConfigToEmail(file) {
+      if (!file) {
+        return;
+      }
+      var email = document.getElementById("email").value;
+      if (!email) {
+        return;
+      }
+      var responseText = document.getElementById("send-email-response");
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "{{route('sendConfigToEmail')}}", true);
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      const body = { 
+          '_token': "{{csrf_token()}}",
+          file,
+          email,
+      };
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+          var responseJson = JSON.parse(xhr.response);
+          responseText.innerHTML = response.message;
+          if (responseJson.status === 1) {
+            responseText.classList.remove("text-danger", "d-none");
+            responseText.classList.add("text-success", "d-block");
+          } else {
+            responseText.classList.remove("text-success", "d-none");
+            responseText.classList.add("text-danger", "d-block");
+          }
+        }
+      };
+      xhr.send(JSON.stringify(body));
     }
   </script>
 </body>

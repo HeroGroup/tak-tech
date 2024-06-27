@@ -7,6 +7,7 @@ use App\Enums\TransactionType;
 use App\Enums\TransactionReason;
 use App\Enums\TransactionStatus;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Mail\VpnConfig;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
@@ -15,6 +16,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserCart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 
 use Illuminate\Support\Facades\Hash;
@@ -333,5 +335,23 @@ class SiteController extends Controller
     public function downloadZip($name)
     {
         return response()->download(resource_path("confs/$name.zip"));
+    }
+
+    public function sendConfigToEmail(Request $request)
+    {
+        try {
+            $email = $request->email;
+            $file = $request->file;
+            if (!$email || !$file)
+            {
+                return $this->fail('مقادیر ورودی نامعتبر است.');
+            }
+
+            Mail::to($email)->send(new VpnConfig(resource_path("confs/$file.zip")));
+            
+            return $this->success('تنظیمات به ایمیل شما ارسال شد. لطفا پوشه spam را هم بررسی کنید.');
+        } catch (\Exeption $exception) {
+            return $this->fail($exception->getMessage());
+        }
     }
 }

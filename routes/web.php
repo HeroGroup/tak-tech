@@ -22,6 +22,7 @@ Route::get('/discounts/checkDiscountCode/{code}', [DiscountController::class, 'c
 Route::post('/submitOrder', [SiteController::class, 'submitOrder'])->name('submitOrder');
 Route::get('/payResult', [SiteController::class, 'payResult'])->name('payResult');
 Route::get('/download/{name}', [SiteController::class, 'downloadZip'])->name('downloadZip');
+Route::post('/sendConfigToEmail', [SiteController::class, 'sendConfigToEmail'])->name('sendConfigToEmail');
 
 Route::name('auth.')->group(function () {
     Route::get('/login', [AuthController::class, 'getLogin'])->name('login');
