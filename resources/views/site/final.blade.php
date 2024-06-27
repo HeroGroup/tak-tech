@@ -32,7 +32,7 @@
       <hr/>
       <div style="width: 100%; text-align:c center;padding: 8px;">
         <input type="email" name="email" id="email" />
-        <button class="btn btn-info" onclick="sendConfigToEmail('{{$now_ts}}')">ارسال تنظیمات به ایمیل<button>
+        <button class="btn btn-info" onclick="sendConfigToEmail('{{$now_ts}}')">ارسال تنظیمات به ایمیل</button>
         <div class="form-text text-danger d-none" id="end-email-response"></div>
       </div>
       <hr/>
@@ -69,7 +69,7 @@
       xhr.onreadystatechange = () => {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
           var responseJson = JSON.parse(xhr.response);
-          responseText.innerHTML = response.message;
+          responseText.innerHTML = responseJson.message;
           if (responseJson.status === 1) {
             responseText.classList.remove("text-danger", "d-none");
             responseText.classList.add("text-success", "d-block");
