@@ -188,7 +188,7 @@ class SiteController extends Controller
                 $order->delete();
             }
 
-            return view('site.final', compact('status', 'message', 'now_ts'));
+            return view('site.final', compact('status', 'message'));
         }
     }
 
