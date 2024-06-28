@@ -37,6 +37,7 @@ class ProductController extends Controller
                 'description' => $request->description,
                 'price' => $request->price,
                 'period' => $request->period,
+                'duration' => $request->duration,
                 'iType' => $request->iType,
                 'allowed_traffic' => $request->allowed_traffic,
                 'maximum_connections' => $request->maximum_connections,
@@ -89,6 +90,7 @@ class ProductController extends Controller
                 $product->is_featured = $request->input('is_featured', 'off') == 'on' ? 1 : 0;
                 $product->is_active = $request->input('is_active', 'off') == 'on' ? 1 : 0;
                 $product->period = $request->period;
+                $product->duration = $request->duration;
                 $product->iType = $request->iType;
                 $product->allowed_traffic = $request->allowed_traffic;
                 $product->maximum_connections = $request->maximum_connections;

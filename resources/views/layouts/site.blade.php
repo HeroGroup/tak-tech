@@ -142,16 +142,16 @@
                             <div class="row flex-lg-row-reverse align-items-center justify-content-between g-gs">
                                 <div class="col-lg-6 mb-n3 mb-lg-0">
                                     <div class="header-image header-image-s2">
-                                        <img src="/assets/img/warp-desktop.png" alt="" />
+                                        <img src="/assets/img/index.png" alt="" />
                                     </div>
                                     <!-- .header-image -->
                                 </div>
                                 <!-- .col- -->
                                 <div class="col-lg-5 col-md-10">
                                     <div class="header-caption">
-                                        <h1 class="header-title">قابل استفاده روی تمام دستگاه ها</h1>
+                                        <h4>اینجا تمام دستگاه‌های شما مجهز خواهد شد</h4>
                                         <div class="header-text">
-                                            <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
+                                            <p>با یک اشتراک، تمام دستگاه‌های شما را به وی پی ان‌های پرسرعت و مطمئن مجهز می‌کنیم</p>
                                         </div>
                                     </div>
                                     <!-- .header-caption -->
@@ -464,11 +464,8 @@
                 };
 
                 xhr.onreadystatechange = () => {
-                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                        if (render) {
-                            // document.write(xhr.response);
-                            window.location = xhr.response;
-                        }
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && render) {
+                        window.location = xhr.response;
                     }
                 };
                 xhr.send(JSON.stringify(body));

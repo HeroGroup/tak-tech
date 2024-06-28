@@ -27,7 +27,7 @@
         @endif  
       </div>
         
-      @if ($status == 'success')
+      @if ($status == 'success' && isset($now_ts))
       <a href="{{route('downloadZip',$now_ts)}}" target="blank" class="btn btn-success">دانلود تنظیمات</a>
       <hr/>
       <div style="width: 100%; text-align:c center;padding: 8px;">

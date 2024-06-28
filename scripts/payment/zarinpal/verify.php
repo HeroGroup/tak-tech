@@ -4,11 +4,17 @@ $verify_url = "https://api.zarinpal.com/pg/v4/payment/verify.json";
 
 $amount = $_GET['amount'];
 $order_id = $_GET['order_id'];
+$reason = $_GET['reason'];
 $_authority = $_GET['Authority'];
 $status = $_GET['Status'];
 
-$base_redirect = "https://meionite.eu/payResult?order_id=$order_id&status=$status";
-// $base_redirect = "http://localhost:8000/payResult?order_id=$order_id&status=$status";
+if ($reason == "renew") {
+  $base_redirect = "https://meionite.eu/renew/payResult?order_id=$order_id&status=$status";
+} else if ($reason == "wallet") {
+  $base_redirect = "https://meionite.eu/wallet/payResult?status=$status";
+} else {
+  $base_redirect = "https://meionite.eu/payResult?order_id=$order_id&status=$status";
+}
 
 if ($status == "NOK") {
   header("Location: $base_redirect&message=پرداخت ناموفق");

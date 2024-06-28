@@ -14,7 +14,7 @@
       </tr>
     </thead>
     <tbody>
-    <?php $row = 0; $nowTime = time(); $nowDateTime = new DateTime(); ?>
+    <?php $row = 0; $nowTime = time(); ?>
     @foreach ($services as $service)
       <tr class="nk-tb-item">
         <td class="nk-tb-col">
@@ -37,23 +37,16 @@
             $expire = $service->expire_days;
             $diff = strtotime($service->activated_at. " + $expire days") - $nowTime; 
             if ($diff > 0) {
-                $expires_on = new DateTime($service->activated_at);
-                $expires_on->add(new DateInterval("P$expire"."D"));
-                $time_left = $expires_on->diff($nowDateTime);
-                $days_left = $time_left->m*30 + $time_left->d;
-                $hours_left = $time_left->h;
-                $minutes_left = $time_left->i;
-                // $seconds_left = $time_left->s;
-                $time_left_to_show = "";
-                if ($days_left > 0) {
-                    $time_left_to_show .= "$days_left روز ";
-                }
-                if ($hours_left > 0) {
-                    $time_left_to_show .= "$hours_left ساعت ";
-                }
-                if ($time_left_to_show == "" && $minutes_left > 0) {
-                    $time_left_to_show .= "$minutes_left دقیقه ";
-                }
+              $total_left = explode('.', round($diff / (60 * 60 * 24), 2));
+              $days_left = $total_left[0] ?? 0;
+              $hours_left = floor(($total_left[1] ?? 0) / 100 * 24);
+              $time_left_to_show = "";
+              if ($days_left > 0) {
+                $time_left_to_show .= "$days_left روز ";
+              }
+              if ($hours_left > 0) {
+                $time_left_to_show .= "$hours_left ساعت";
+              }
             }
           ?>
           @if($diff > 0)
@@ -84,14 +77,14 @@
               <a href="{{route('customer.services.download',['id'=>$service->id,'files'=>'all'])}}" class="btn btn-icon btn-trigger btn-tooltip">
                 <em class="icon ni ni-download"></em> دانلود
               </a>
-              <a href="#" class="btn btn-icon btn-trigger btn-tooltip" data-bs-toggle="modal" data-bs-target="#cartModal-{{$service->id}}">
+              <a href="#" class="btn btn-icon btn-trigger btn-tooltip" onclick="createCart('{{$service->id}}','{{$service->product_id}}','{{$service->product->title}}','{{$service->product->price}}')" data-bs-toggle="modal" data-bs-target="#cartModal-{{$service->id}}">
                 <em class="icon ni ni-repeat"></em> تمدید
               </a>
-              @if($service->product->iType == 'limited')
+              <!-- @if($service->product->iType == 'limited')
               <a href="#" class="btn btn-icon btn-trigger btn-tooltip">
                 <em class="icon ni ni-chart-up"></em> آمار مصرف
               </a>
-              @endif
+              @endif -->
             </li>
           </ul>
         </td>
@@ -127,15 +120,23 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                  <ul class="cart-list" id="cart-list"></ul>
-                  <hr />
-                  <div style="display: flex; justify-content: space-between;">
-                      <div style="flex: 1">مبلغ قابل پرداخت</div>
-                      <div style="flex: 1; text-align: left;">
-                          <span>{{number_format($service->product->price)}} تومان</span>
-                      </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <div style="flex: 1">موجودی کیف پول</div>
+                  <div style="flex: 1; text-align: left;">
+                    <span class="cart-sum">{{number_format(auth()->user()->wallet)}} تومان</span>
                   </div>
-                  <hr />
+                </div>
+                  
+                <hr />
+                  
+                <div style="display: flex; justify-content: space-between;">
+                  <div style="flex: 1">مبلغ قابل پرداخت</div>
+                    <div style="flex: 1; text-align: left;">
+                      <span class="cart-sum">{{number_format($service->product->price - auth()->user()->wallet)}} تومان</span>
+                    </div>
+                </div>
+                
+                <hr />
 
                   <div style="display: flex; justify-content: space-between; align-items: center;">
                       <div style="flex: 2">
@@ -163,8 +164,163 @@
 </div>
 <!-- .nk-block -->
 <script>
-  function checkDiscountCode() {}
-  function removeDiscountCode() {}
-  function renewService() {}
+  var serviceId;
+  var cart = {};
+  var discountCodeEnabled = false;
+  var wallet = "{{auth()->user()->wallet}}";
+
+  function createCart(_serviceId, productId, title, price) {
+    serviceId = _serviceId;
+    cart[productId] = {count: 1, title, price};
+  }
+  function implementDiscountCodeOnUserCart(data) {
+    var applied = false;
+    if (!discountCodeEnabled) {
+      var discount = data.discount;
+      var discountDetails = data.discountDetails;
+      var cartSums = document.getElementsByClassName("cart-sum");
+      if (discountDetails) {
+        // process user cart
+        jQuery.each(cart, function(index, value) {
+          for (var i=0; i < discountDetails.length; i++) {
+            if (index == discountDetails[i].product_id) {
+              if (discountDetails[i].discount_percent) {
+                cart[index].finalPrice = cart[index].price * ((100 - parseInt(discountDetails[i].discount_percent)) / 100);
+              } else if (discountDetails[i].fixed_amount) {
+                cart[index].finalPrice = cart[index].price - discountDetails[i].fixed_amount;
+              }
+              cart[index].finalPrice = cart[index].finalPrice < 0 ? 0 : cart[index].finalPrice;
+              Array.prototype.forEach.call(cartSums, function(element) {
+                element.innerHTML = `
+                  <s>${new Intl.NumberFormat().format(cart[index].price)} تومان</s>
+                  <div class="text-success">${new Intl.NumberFormat().format(cart[index].finalPrice)} تومان</div>
+                `;
+              });
+              applied = true;
+            }
+          }
+        });
+
+        discountCodeEnabled = true;
+      } else if (discount) {
+        // manipulate final price
+        var basePrice = 0;
+        var finalPrice = 0;
+
+        Object.keys(cart).forEach((item) => {
+            basePrice += cart[item].price * cart[item].count;
+        });
+
+        if (discount.discount_percent) {
+            finalPrice = basePrice * (100 - parseInt(discount.discount_percent)) / 100;
+        } else if (discount.fixed_amount) {
+            finalPrice = basePrice - discount.fixed_amount;
+        }
+
+        finalPrice = finalPrice <= 0 ? 0 : finalPrice;
+
+        var cartSums = document.getElementsByClassName("cart-sum");
+        Array.prototype.forEach.call(cartSums, function(element) {
+          element.innerHTML = `
+            <s>${new Intl.NumberFormat().format(basePrice)} تومان</s>
+            <div class="text-success">${new Intl.NumberFormat().format(finalPrice)} تومان</div>
+          `;
+        });
+        applied = true;
+      }
+    }
+    return applied;
+  }
+  function checkDiscountCode() {
+    removeDiscountCode(false);
+    var code = document.getElementById("discount-code");
+    if (!code.value) {
+      return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', `/discounts/checkDiscountCode/${code.value}`, true);
+    xhr.addEventListener("load", function() {
+      var responseText = document.getElementById("check-discount-response");
+      var checkDiscountCodeBtn = document.getElementById("check-discount-code-btn");
+      var removeDiscountCodeBtn = document.getElementById("remove-discount-code-btn");
+      var response = JSON.parse(xhr.response);
+
+      if(response.status === 1) {
+        var applied = implementDiscountCodeOnUserCart(response.data);
+        responseText.innerHTML = response.message;
+                        
+        responseText.classList.remove("text-danger", "d-none");
+        responseText.classList.add("text-success", "d-block");
+
+        checkDiscountCodeBtn.classList.remove("d-inline");
+        checkDiscountCodeBtn.classList.add("d-none");
+                        
+        removeDiscountCodeBtn.classList.remove("d-none");
+        removeDiscountCodeBtn.classList.add("d-inline");
+        if (!applied) {
+          responseText.innerHTML = 'این کد تخفیف برای محصولات انتخابی شما معتبر نمی باشد';
+        }
+      } else {
+        responseText.innerHTML = response.message;
+        responseText.classList.remove("text-success", "d-none");
+        responseText.classList.add("text-danger", "d-block");
+      }
+    });
+    xhr.send();
+  }
+  function removeDiscountCode(clear=true) {
+    if (clear) {
+      document.getElementById("discount-code").value = "";
+    }
+
+    var basePrice = 0;
+    // remove all finalPrices from cart
+    jQuery.each(cart, function(index, value) {
+      delete cart[index].finalPrice;
+      basePrice = cart[index].price;
+    });
+
+    // change button
+    var checkDiscountCodeBtn = document.getElementById("check-discount-code-btn");
+    var removeDiscountCodeBtn = document.getElementById("remove-discount-code-btn");
+
+    checkDiscountCodeBtn.classList.add("d-inline");
+    checkDiscountCodeBtn.classList.remove("d-none");
+                        
+    removeDiscountCodeBtn.classList.add("d-none");
+    removeDiscountCodeBtn.classList.remove("d-inline");
+
+    var helpText = document.getElementById("check-discount-response");
+    helpText.classList.add("d-none");
+    helpText.classList.remove("d-block");
+
+    var cartSums = document.getElementsByClassName("cart-sum");
+    Array.prototype.forEach.call(cartSums, function(element) {
+      element.innerHTML = `${new Intl.NumberFormat().format(basePrice-wallet)} تومان`;
+    });
+
+    discountCodeEnabled = false;
+  }
+  function renewService() {
+    // send cart and discount code to server
+    var route = "{{route('customer.services.renew')}}";
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", route, true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    const body = { 
+      '_token': "{{csrf_token()}}",
+      id: serviceId,
+      cart: JSON.stringify(cart),
+      discountCode: document.getElementById("discount-code").value,
+    };
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200 && render) {
+        window.location = xhr.response;
+      }
+    };
+    xhr.send(JSON.stringify(body));
+  }
 </script>
 @endsection

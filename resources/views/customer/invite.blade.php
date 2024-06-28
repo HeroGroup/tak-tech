@@ -5,7 +5,7 @@
   <p class="mb-4">با استفاده از لینک زیر، دوستان خود را دعوت کنید و پس از اولین خرید آن ها، پاداش دریافت کنید.</p>
 
   <div style="text-align: center;">
-    <button onclick="invite('{{auth()->user()->invite_code}}')" class="btn btn-primary">ارسال لینک دعوت</button>
+    <button onclick="invite('{{auth()->user()->invite_code}}','{{$app_url}}')" class="btn btn-primary">ارسال لینک دعوت</button>
   </div>
 </div>
 <table class="table">

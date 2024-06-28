@@ -8,10 +8,15 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\JobController;
 use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
+
+// =========== routes called by cron jobs ============== //
+Route::get('/services/renew/{token}', [JobController::class, 'renew']);
+// ===================================================== //
 
 Route::get('/admin/setting/dbMigrate/{token}/{rollback?}', [SettingController::class, 'dbMigrate']);
 
@@ -21,6 +26,8 @@ Route::get('/cart', [SiteController::class, 'cart'])->name('cart');
 Route::get('/discounts/checkDiscountCode/{code}', [DiscountController::class, 'checkDiscountCode'])->name('checkDiscountCode');
 Route::post('/submitOrder', [SiteController::class, 'submitOrder'])->name('submitOrder');
 Route::get('/payResult', [SiteController::class, 'payResult'])->name('payResult');
+Route::get('/renew/payResult', [CustomerDashboardController::class, 'renewPayResult'])->name('renew.payResult');
+Route::get('/wallet/payResult', [CustomerDashboardController::class, 'walletPayResult'])->name('wallet.payResult');
 Route::get('/download/{name}', [SiteController::class, 'downloadZip'])->name('downloadZip');
 Route::post('/sendConfigToEmail', [SiteController::class, 'sendConfigToEmail'])->name('sendConfigToEmail');
 
@@ -99,8 +106,10 @@ Route::prefix('customer')->group(function () {
             Route::get('/orders/{uid}', [CustomerDashboardController::class, 'showOrder'])->name('orders.show');
             Route::get('/services', [CustomerDashboardController::class, 'services'])->name('services');
             Route::put('/services/{id}/updateNote', [CustomerDashboardController::class, 'updateServiceNote'])->name('services.updateNote');
+            Route::post('/services/renew', [CustomerDashboardController::class, 'renewService'])->name('services.renew');
             Route::get('/services/{id}/download/{files}', [CustomerDashboardController::class, 'downloadService'])->name('services.download');
             Route::get('/transactions', [CustomerDashboardController::class, 'transactions'])->name('transactions');
+            Route::post('/transactions/increase', [CustomerDashboardController::class, 'increaseWalletAmount'])->name('transactions.increase');
             Route::get('/notifications', [CustomerDashboardController::class, 'notifications'])->name('notifications');
             Route::post('/notifications/markAllAsRead', [CustomerDashboardController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
             Route::get('/invite', [CustomerDashboardController::class, 'invite'])->name('invite');

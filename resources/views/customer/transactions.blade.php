@@ -1,6 +1,36 @@
 @extends('layouts.customer.main', ['pageTitle' => 'Transactions', 'pageTitleFa' => 'تراکنش ها', 'active' => 'transactions'])
 @section('content')
 <div class="nk-block nk-block-lg">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#increase-modal">
+        <em class="icon ni ni-plus"></em> افزایش موجودی
+    </a><br><br>
+    <!-- Increase Modal -->
+    <div class="modal fade" id="increase-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="increase-modal-label">افزایش موجودی کیف پول</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('customer.transactions.increase')}}" class="form-validate is-alter" method="post">
+                        @csrf
+                        <div class="form-group">
+                            <label class="form-label" for="amount">مبلغ</label>
+                            <div class="form-control-wrap">
+                                <input type="number" class="form-control" name="amount" id="amount" required min="1000" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-lg btn-primary">پرداخت</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
   <table class="datatable-init nowrap nk-tb-list is-separate" data-auto-responsive="false">
     <thead>
         <tr class="nk-tb-item nk-tb-head">

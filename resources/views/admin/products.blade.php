@@ -103,13 +103,17 @@
                                                                 <option value="unlimited" @if($product->iType=='unlimited') selected @endif>Unlimited</option>
                                                             </select>
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-3">
                                                             <label for="period">period</label>
                                                             <select name="period" id="period" class="form-control">
                                                                 <option value="ماهانه" @if($product->period=='ماهانه') selected @endif>ماهانه</option>
                                                                 <option value="دو ماهه" @if($product->period=='دو ماهه') selected @endif>دو ماهه</option>
                                                                 <option value="سه ماهه" @if($product->period=='سه ماهه') selected @endif>سه ماهه</option>
                                                             </select>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label for="duration">Duration</label>
+                                                            <input class="form-control" name="duration" value="{{$product->duration}}" placeholder="30">
                                                         </div>
                                                     </div>
                                                     <div class="form-group row mb-4">
@@ -221,13 +225,17 @@
                                     <option value="unlimited">Unlimited</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label for="period">period</label>
                                 <select name="period" id="period" class="form-control">
                                     <option value="ماهانه">ماهانه</option>
                                     <option value="دو ماهه">دو ماهه</option>
                                     <option value="سه ماهه">سه ماهه</option>
                                 </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="duration">Duration</label>
+                                <input class="form-control" name="duration" value="{{old('duration')}}" type="number" placeholder="30">
                             </div>
                         </div>
                         <div class="form-group row mb-4">

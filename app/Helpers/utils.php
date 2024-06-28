@@ -75,3 +75,25 @@ function unzipFiles($files, $path)
         return ['status' => -1, 'message' => 'failed to extract zip file'];
     }
 }
+
+function api_call($method, $url, $data=null, $withHeader=false)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    if ($data) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    }
+    if ($withHeader) {
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Content-Length: ' . strlen($data)]);
+    }
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
+    $out = curl_exec($ch);
+    curl_close($ch);    
+    if (!$out || $out == null) {
+        return curl_error($ch);
+    }
+    return json_decode($out, true);
+}

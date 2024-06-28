@@ -7,7 +7,8 @@ $pay_start_url = "https://www.zarinpal.com/pg/StartPay/";
 
 $amount = $_GET['amount'];
 $description = $_GET['description'];
-$callbackUrl = $_GET['callbackUrl'] ?? "https://fardahost.com/verify.php?order_id=$description&amount=$amount";
+$reason = $_GET['reason'];
+$callbackUrl = $_GET['callbackUrl'] ?? "https://fardahost.com/verify.php?order_id=$description&amount=$amount&reason=$reason";
 $email = $_GET['email'];
 $mobile = $_GET['mobile'];
 

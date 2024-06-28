@@ -97,6 +97,20 @@ class SiteController extends Controller
         $now = date('Y-m-d H:i:s', time());
 
         try {
+            // check if free services are available base on user cart and count
+            $cart = json_decode($request->cart);
+            foreach($cart as $key => $value) {
+                // $key is product_id
+                $product = Product::find($key);
+                $free_service_count = Service::where('product_id', $product->id)->where('is_sold', 0)->count();
+                $desired_count = $value->count;
+                if ($free_service_count == 0) {
+                    return "متاسفانه ظرفیت سرویس $product->title به اتمام رسیده است.";
+                } else if ($free_service_count < $desired_count) {
+                    return "متاسفانه سرویس $product->title, تنها $free_service_count عدد ظرفیت دارد.";
+                }
+            }
+
             if ($request->discountCode) {
                 $discountController = new DiscountController;
                 $checkDiscountResult = $discountController->checkDiscountCode($request->discountCode, 'array');
@@ -113,7 +127,7 @@ class SiteController extends Controller
             $basePriceSum = 0;
             $finalPriceSum = 0;
             
-            $cart = json_decode($request->cart);
+            
 
             foreach($cart as $key => $value) {
                 // $key is product_id
@@ -311,9 +325,14 @@ class SiteController extends Controller
             $pay_transaction_id = $order->transaction_id;
 
             // delete transactions
-            Transaction::find($pay_transaction_id)->delete();
+            $pay_transaction = Transaction::find($pay_transaction_id);
+            $pay_transaction_amount = $pay_transaction->amount;
+            $pay_transaction->delete();
 
-            // TODO: update wallet
+            // update wallet
+            $user = User::find($user_id);
+            $user_wallet = $user->wallet ?? 0;
+            $user->wallet = $user_wallet + $pay_transaction_amount;
             
             // undo order status
             Order::find($order->id)->update([

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Customer;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Models\LoginSession;
 use App\Models\Mailbox;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Product;
 use App\Models\Service;
+use App\Models\ServiceRenew;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Traits\UpdatePassword;
@@ -92,11 +95,12 @@ class DashboardController extends Controller
         }
     }
 
-    public function services() {
-    try {
-        $services = Service::where('owner', auth()->user()->id)->orderByDesc('id')->get();
+    public function services()
+    {
+        try {
+            $services = Service::where('owner', auth()->user()->id)->orderByDesc('id')->get();
 
-        return view('customer.services', compact('services'));
+            return view('customer.services', compact('services'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }
@@ -133,6 +137,176 @@ class DashboardController extends Controller
         }
     }
 
+    public function renewService(Request $request)
+    {
+        try {
+            $service_id = $request->id;
+            $cart = json_decode($request->cart);
+            $discountCode = $request->discountCode;
+
+            if ($discountCode) {
+                $discountController = new DiscountController;
+                $checkDiscountResult = $discountController->checkDiscountCode($discountCode, 'array');
+                
+                if ($checkDiscountResult['status'] == 1) {
+                    if (isset($checkDiscountResult['data']['discountDetails']) && count($checkDiscountResult['data']['discountDetails']) > 0) {
+                        $discountDetails = $checkDiscountResult['data']['discountDetails'];
+                    } else {
+                        $discount = $checkDiscountResult['data']['discount'];
+                    }
+                }
+            }
+
+            $basePriceSum = 0;
+            $finalPriceSum = 0;
+
+            foreach($cart as $key => $value) {
+                // $key is product_id
+                $product = Product::find($key);
+                $count = $value->count;
+
+                // implement discount code details if exist
+                $productFinalPrice = $product->price;
+                if (isset($discountDetails)) {
+                    foreach ($discountDetails as $discountDetail) {
+                        if ($key == $discountDetail->product_id) {
+                            if ($discountDetail->discount_percent) {
+                                $productFinalPrice = $productFinalPrice * (100 - $discountDetail->discount_percent) / 100;
+                            } else if ($discountDetail->fixed_amount) {
+                                $productFinalPrice = $productFinalPrice - $discountDetail->fixed_amount;
+                            }
+                        }
+                    }
+                }
+                $productFinalPrice = $productFinalPrice < 0 ? 0 : $productFinalPrice;
+
+                $basePriceSum += $product->price * $count;
+                $finalPriceSum += $productFinalPrice * $count;
+            }
+
+            if (isset($discount)) {
+                if ($discount->discount_percent) {
+                    $finalPriceSum = $finalPriceSum * (100 - $discount->discount_percent) / 100;
+                } else if ($discount->fixed_amount) {
+                    $finalPriceSum = $finalPriceSum - $discount->fixed_amount;
+                }
+                $finalPriceSum = $finalPriceSum < 0 ? 0 : $finalPriceSum;
+            }
+
+            $amount = ($finalPriceSum - auth()->user()?->wallet)*10;
+            
+            session(['service_id' => $service_id, 'service_amount' => $finalPriceSum]);
+
+            if ($amount > 0) {
+                // redirect to bank
+                $pay_url = env('PAY_URL');
+                return "$pay_url?amount=$amount&description=$service_id&reason=renew";
+            }
+
+            return "/renew/payResult?order_id=$service_id&status=OK&ref_id=";
+        } catch (\Exception $exception) {
+            return $exception->getLine().': '.$exception->getMessage();
+        }
+    }
+
+    public function renewPayResult()
+    {
+        $status = 'fail';
+        $message = '';
+        $service_id = session('service_id', $request->query('order_id'));
+        $service = Service::find($service_id);
+        $user_id = $service->owner;
+        $service_expire_days = $service->expire_days;
+        $service_amount = session('service_amount');
+        $pay_status = $request->query('status');
+        $pay_transaction = '';
+
+        try {
+            if ($pay_status == 'NOK') {
+                $message = $request->query('message');
+                return view('site.final', compact('status', 'message'));
+            } else {
+                $ref_id = $request->query('ref_id');
+
+                // کسر موجودی کیف پول در صورت وجود
+                $amountToCharge = $service_amount - auth()->user()?->wallet;
+                
+                if ($amountToCharge > 0) {
+                    $chargeTransaction = Transaction::create([
+                        'title' => 'شارژ کیف پول',
+                        'amount' => $amountToCharge,
+                        'type' => TransactionType::INCREASE->value,
+                        'reason' => TransactionReason::CHARGE->value,
+                        'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                        'user_id' => $user_id,
+                        'description' => "شماره پیگیری: $ref_id"
+                    ]);
+                }
+
+                $payTransaction = Transaction::create([
+                    'title' => 'تمدید سرویس '.$service_id,
+                    'amount' => $service_amount,
+                    'type' => TransactionType::DECREASE->value,
+                    'reason' => TransactionReason::PAYMENT->value,
+                    'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                    'user_id' => $user_id,
+                ]);
+
+                // check if service is already expired
+                $expire = Product::find($service->product_id)->duration ?? 30;
+                $diff = strtotime($service->activated_at. " + $service_expire_days days") - time(); 
+                if ($diff >= 0) { // not expired yet
+                    $service->update([
+                        'expire_days' => $service_expire_days + $expire
+                    ]);
+                } else { // expired
+                    $total_past = explode('.', round(-$diff / (60 * 60 * 24), 2));
+                    $days_past = $total_past[0] ?? 0;
+                    $service->update([
+                        'expire_days' => $service_expire_days + $expire + $days_past
+                    ]);
+                }
+
+                // api call to update service expire_days
+                $data = [
+                    'token' => env('API_CALL_TOKEN'),
+                    'peer_id' => $service->panel_peer_id,
+                    'add_days' => $expire + $days_past
+                ];
+
+                $api_call = api_call('POST', env('PANEL_URL').'/wiregaurd/peers/renew', $data, true);
+
+                // insert in service_renews
+                ServiceRenew::create([
+                    'service_id' => $service_id, 
+                    'add_days' => $expire + $days_past,
+                    'api_call_status' => $api_call['status'],
+                    'api_call_message' => $api_call['message'],
+                ]);
+
+                $status = 'success';
+                $message .= 'سرویس با موفقیت تمدید شد!';
+
+                return view('site.final', compact('status', 'message', 'ref_id'));
+            }
+        } catch (\Exception $exception) {
+            // delete pay transaction
+            $pay_transaction = Transaction::find($pay_transaction->id);
+            $pay_transaction_amount = $pay_transaction->amount;
+            $pay_transaction->delete();
+
+            // update wallet
+            $user = User::find($user_id);
+            $user_wallet = $user->wallet ?? 0;
+            $user->wallet = $user_wallet + $pay_transaction_amount;
+                        
+            // undo services allocations
+            Service::where('id', $service_id)->update([
+                'expire_days' => $service_expire_days,
+            ]);
+        }
+    }
+
     public function transactions() {
         try {
             $transactions = Transaction::where('user_id', auth()->user()->id)->orderByDesc('id')->get();
@@ -140,6 +314,63 @@ class DashboardController extends Controller
             return view('customer.transactions', compact('transactions'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+    }
+
+    public function increaseWalletAmount(Request $request)
+    {
+        try {
+            $user_id = auth()->user()->id;
+            $amount = $request->amount;
+            session(['charge_amount', $amount]);
+            if ($amount > 0) {
+                // redirect to bank
+                $pay_url = env('PAY_URL');
+                return redirect("$pay_url?amount=$amount&description=&reason=wallet");
+            }
+
+            return back()->with('message', 'مبلغ نامعتبر')->with('type', 'danger');
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+        }
+        
+    }
+
+    public function walletPayResult()
+    {
+        $status = 'fail';
+        $message = '';
+        $user_id = auth()->user()->id;
+        $charge_amount = session('charge_amount');
+        $pay_status = $request->query('status');
+        $pay_transaction = '';
+        try {
+            if ($pay_status == 'NOK') {
+                $message = $request->query('message');
+                return view('site.final', compact('status', 'message'));
+            } else {
+                $ref_id = $request->query('ref_id');
+                
+                if ($charge_amount > 0) {
+                    $chargeTransaction = Transaction::create([
+                        'title' => 'شارژ کیف پول',
+                        'amount' => $charge_amount,
+                        'type' => TransactionType::INCREASE->value,
+                        'reason' => TransactionReason::CHARGE->value,
+                        'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
+                        'user_id' => $user_id,
+                        'description' => "شماره پیگیری: $ref_id"
+                    ]);
+                }
+
+                $status = 'success';
+                $message .= "موجودی کیف پول با موفقیت به مبلغ $charge_amount افزایش یافت.";
+
+                return view('site.final', compact('status', 'message', 'ref_id'));
+            }
+        } catch (\Exception $exception) {
+            $message = $exception->getMessage();
+            return view('site.final', compact('status', 'message'));
         }
     }
 
@@ -169,8 +400,9 @@ class DashboardController extends Controller
             $userId = auth()->user()->id;
             $numberOdInvitedPeople = User::where('invitee', $userId)->count();;
             $reward = Transaction::where(['user_id' => $userId, 'is_reward' => 1])->sum('amount');
+            $app_url = env('APP_URL');
 
-            return view('customer.invite', compact('numberOdInvitedPeople', 'reward'));
+            return view('customer.invite', compact('numberOdInvitedPeople', 'reward', 'app_url'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }

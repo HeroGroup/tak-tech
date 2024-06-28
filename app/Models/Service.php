@@ -22,6 +22,7 @@ class Service extends Model
         'order_detail_id',
         'owner',
         'activated_at',
+        'expire_days'
     ];
 
     protected $dates = ['deleted_at'];

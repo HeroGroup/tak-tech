@@ -17,6 +17,7 @@ class Product extends Model
         'image_url',
         'price',
         'period',
+        'duration',
         'is_featured',
         'is_active',
         'iType', // limited, unlimited

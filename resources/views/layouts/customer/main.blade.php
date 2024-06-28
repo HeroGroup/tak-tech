@@ -100,11 +100,11 @@
                 return navigator.canShare(data);
             }
 
-            function invite(code) {
-                const shareUrl = `/register?invite_code=${code}`;
+            function invite(code, appUrl) {
+                const shareUrl = `${appUrl}/register?invite_code=${code}`;
                 const sharedDataSample = {
                     title: "دعوت از دوستان",
-                    text: "خرید vpn بدون قطعی و بالاترین سرعت",
+                    text: `${shareUrl} \n خرید vpn بدون قطعی و بالاترین سرعت`,
                     url: shareUrl,
                 };
 
@@ -112,7 +112,7 @@
                     shareData(sharedDataSample);
                 } else {
                     // canNotShareData();
-                    // copy to cliboard
+                    // copy to cliboardtion
                     navigator.clipboard.writeText(shareUrl);
                     toastr.success('لینک دعوت کپی شد.');
                 }
