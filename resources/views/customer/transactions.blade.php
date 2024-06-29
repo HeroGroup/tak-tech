@@ -18,7 +18,7 @@
                     <form action="{{route('customer.transactions.increase')}}" class="form-validate is-alter" method="post">
                         @csrf
                         <div class="form-group">
-                            <label class="form-label" for="amount">مبلغ</label>
+                            <label class="form-label" for="amount">مبلغ (تومان)</label>
                             <div class="form-control-wrap">
                                 <input type="number" class="form-control" name="amount" id="amount" required min="1000" />
                             </div>
