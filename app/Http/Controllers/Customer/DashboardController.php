@@ -321,8 +321,8 @@ class DashboardController extends Controller
     {
         try {
             $user_id = auth()->user()->id;
-            $amount = $request->amount;
-            if ($amount > 0) {
+            $charge_amount = $request->amount;
+            if ($charge_amount > 0) {
                 $chargeTransaction = Transaction::create([
                     'title' => 'شارژ کیف پول',
                     'amount' => $charge_amount,
@@ -334,7 +334,7 @@ class DashboardController extends Controller
                 ]);
                 // redirect to bank
                 $pay_url = env('PAY_URL');
-                $amount_rial = $amount * 10;
+                $amount_rial = $charge_amount * 10;
                 return redirect("$pay_url?amount=$amount_rial&description=$chargeTransaction->id&reason=wallet");
             }
 
@@ -376,7 +376,8 @@ class DashboardController extends Controller
                 }
 
                 $status = 'success';
-                $message .= "موجودی کیف پول با موفقیت به مبلغ $charge_amount افزایش یافت.";
+                $charge_amount_formatted = number_format($charge_amount);
+                $message .= "موجودی کیف پول با موفقیت به اندازه $charge_amount_formatted تومان افزایش یافت.";
 
                 return view('site.final', compact('status', 'message', 'ref_id'));
             }
