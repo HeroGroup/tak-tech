@@ -11,7 +11,7 @@ $status = $_GET['Status'];
 if ($reason == "renew") {
   $base_redirect = "https://meionite.eu/renew/payResult?order_id=$order_id&status=$status";
 } else if ($reason == "wallet") {
-  $base_redirect = "https://meionite.eu/wallet/payResult?status=$status";
+  $base_redirect = "https://meionite.eu/wallet/payResult?order_id=$order_id&status=$status";
 } else {
   $base_redirect = "https://meionite.eu/payResult?order_id=$order_id&status=$status";
 }

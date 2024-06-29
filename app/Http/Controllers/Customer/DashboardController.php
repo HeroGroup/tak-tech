@@ -322,12 +322,20 @@ class DashboardController extends Controller
         try {
             $user_id = auth()->user()->id;
             $amount = $request->amount;
-            session(['charge_amount', $amount]);
             if ($amount > 0) {
+                $chargeTransaction = Transaction::create([
+                    'title' => 'شارژ کیف پول',
+                    'amount' => $charge_amount,
+                    'type' => TransactionType::INCREASE->value,
+                    'reason' => TransactionReason::CHARGE->value,
+                    'status' => TransactionStatus::PENDING->value,
+                    'user_id' => $user_id,
+                    // 'description' => "شماره پیگیری: $ref_id"
+                ]);
                 // redirect to bank
                 $pay_url = env('PAY_URL');
                 $amount_rial = $amount * 10;
-                return redirect("$pay_url?amount=$amount_rial&description=increase&reason=wallet");
+                return redirect("$pay_url?amount=$amount_rial&description=$chargeTransaction->id&reason=wallet");
             }
 
             return back()->with('message', 'مبلغ نامعتبر')->with('type', 'danger');
@@ -342,9 +350,11 @@ class DashboardController extends Controller
         $status = 'fail';
         $message = '';
         $user_id = auth()->user()->id;
-        $charge_amount = session('charge_amount');
+        $charge_transaction_id = $request->query('order_id');
+        $charge_transaction = Transaction::find($charge_transaction_id);
+        $charge_amount = $charge_transaction->amount ?? 0;
+
         $pay_status = $request->query('status');
-        $pay_transaction = '';
         try {
             if ($pay_status == 'NOK') {
                 $message = $request->query('message');
@@ -352,16 +362,17 @@ class DashboardController extends Controller
             } else {
                 $ref_id = $request->query('ref_id');
                 
-                if ($charge_amount > 0) {
-                    $chargeTransaction = Transaction::create([
-                        'title' => 'شارژ کیف پول',
-                        'amount' => $charge_amount,
-                        'type' => TransactionType::INCREASE->value,
-                        'reason' => TransactionReason::CHARGE->value,
-                        'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
-                        'user_id' => $user_id,
-                        'description' => "شماره پیگیری: $ref_id"
-                    ]);
+                if ($charge_transaction && $charge_amount > 0) {
+                    $charge_transaction->status = TransactionStatus::PAYMENT_SUCCESSFUL->value;
+                    $charge_transaction->description = "شماره پیگیری: $ref_id";
+                    $charge_transaction->save();
+
+                    // update user wallet
+                    $user_wallet = auth()->user()->wallet;
+                    User::where('id', auth()->user()->id)
+                        ->update([
+                            'wallet', $user_wallet + $charge_amount
+                        ]);
                 }
 
                 $status = 'success';
