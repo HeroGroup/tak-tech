@@ -144,6 +144,11 @@ class DashboardController extends Controller
     {
         try {
             $service_id = $request->id;
+            $service = Service::find($service_id);
+            if (!$service || !$service->expire_days || !$service->activated_at) {
+                return "invali service!";
+            }
+
             $cart = json_decode($request->cart);
             $discountCode = $request->discountCode;
 
@@ -197,16 +202,33 @@ class DashboardController extends Controller
             }
 
             $amount = ($finalPriceSum - auth()->user()?->wallet)*10;
+
+            // check if service is already expired
+            $service_expire_days = $service->expire_days ?? 0;
+            $expire = Product::find($service->product_id)->duration ?? 30;
+            $days_past = 0;
+            $diff = strtotime($service->activated_at. " + $service_expire_days days") - time(); 
             
-            session(['service_id' => $service_id, 'service_amount' => $finalPriceSum]);
+            if ($diff < 0) { // expired
+                $total_past = explode('.', round(-$diff / (60 * 60 * 24), 2));
+                $days_past = $total_past[0] ?? 0;
+            }
+            
+            // insert in service_renews
+            $renewd_service = ServiceRenew::create([
+                'service_id' => $service->id, 
+                'service_price' => $amount/10,
+                'discount_id' => isset($discountDetails) ? $discountDetails[0]->discount_id : (isset($discount) ? $discount->id : null),
+                'add_days' => $expire + $days_past,
+            ]);
 
             if ($amount > 0) {
                 // redirect to bank
                 $pay_url = env('PAY_URL');
-                return "$pay_url?amount=$amount&description=$service_id&reason=renew";
+                return "$pay_url?amount=$amount&description=$renewd_service->id&reason=renew";
             }
 
-            return "/renew/payResult?order_id=$service_id&status=OK&ref_id=";
+            return "/renew/payResult?order_id=$renewd_service->id&status=OK&ref_id=";
         } catch (\Exception $exception) {
             return $exception->getLine().': '.$exception->getMessage();
         }
@@ -216,12 +238,18 @@ class DashboardController extends Controller
     {
         $status = 'fail';
         $message = '';
-        $service_id = session('service_id', $request->query('order_id'));
+        $service_renew_id = $request->query('order_id');
+        $pay_status = $request->query('status');
+
+        $service_renew = ServiceRenew::find($service_renew_id);
+        if (!$service_renew) {
+            $message = "خطای تمدید سرویس";
+            return view('site.final', compact('status', 'message'));
+        }
+        
+        $service_id = $service_renew->service_id;
         $service = Service::find($service_id);
         $user_id = $service->owner;
-        $service_expire_days = $service->expire_days;
-        $service_amount = session('service_amount');
-        $pay_status = $request->query('status');
         $pay_transaction = '';
 
         try {
@@ -230,14 +258,12 @@ class DashboardController extends Controller
                 return view('site.final', compact('status', 'message'));
             } else {
                 $ref_id = $request->query('ref_id');
-
-                // کسر موجودی کیف پول در صورت وجود
-                $amountToCharge = $service_amount - auth()->user()?->wallet;
+                $service_amount = $service_renew->service_price;
                 
-                if ($amountToCharge > 0) {
+                if ($service_amount > 0) {
                     $chargeTransaction = Transaction::create([
                         'title' => 'شارژ کیف پول',
-                        'amount' => $amountToCharge,
+                        'amount' => $service_amount,
                         'type' => TransactionType::INCREASE->value,
                         'reason' => TransactionReason::CHARGE->value,
                         'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
@@ -248,44 +274,26 @@ class DashboardController extends Controller
 
                 $payTransaction = Transaction::create([
                     'title' => 'تمدید سرویس '.$service_id,
-                    'amount' => $service_amount,
+                    'amount' => $service_amount + auth()->user()->wallet,
                     'type' => TransactionType::DECREASE->value,
                     'reason' => TransactionReason::PAYMENT->value,
                     'status' => TransactionStatus::PAYMENT_SUCCESSFUL->value,
                     'user_id' => $user_id,
                 ]);
 
-                // check if service is already expired
-                $expire = Product::find($service->product_id)->duration ?? 30;
-                $diff = strtotime($service->activated_at. " + $service_expire_days days") - time(); 
-                if ($diff >= 0) { // not expired yet
-                    $service->update([
-                        'expire_days' => $service_expire_days + $expire
-                    ]);
-                } else { // expired
-                    $total_past = explode('.', round(-$diff / (60 * 60 * 24), 2));
-                    $days_past = $total_past[0] ?? 0;
-                    $service->update([
-                        'expire_days' => $service_expire_days + $expire + $days_past
-                    ]);
-                }
-
                 // api call to update service expire_days
                 $data = [
                     'token' => env('API_CALL_TOKEN'),
                     'peer_id' => $service->panel_peer_id,
-                    'add_days' => $expire + $days_past
+                    'add_days' => $service_renew->add_days
                 ];
 
                 $api_call = api_call('POST', env('PANEL_URL').'/wiregaurd/peers/renew', $data, true);
 
-                // insert in service_renews
-                ServiceRenew::create([
-                    'service_id' => $service_id, 
-                    'add_days' => $expire + $days_past,
-                    'api_call_status' => $api_call['status'],
-                    'api_call_message' => $api_call['message'],
-                ]);
+                $service_renew->payment_status = 'success';
+                $service_renew->api_call_status = $api_call['status'];
+                $service_renew->api_call_message = $api_call['message'];
+                $service_renew->save();
 
                 $status = 'success';
                 $message .= 'سرویس با موفقیت تمدید شد!';
@@ -294,8 +302,7 @@ class DashboardController extends Controller
             }
         } catch (\Exception $exception) {
             // delete pay transaction
-            $pay_transaction = Transaction::find($pay_transaction->id);
-            $pay_transaction_amount = $pay_transaction->amount;
+            $pay_transaction_amount = $pay_transaction->amount ?? 0;
             $pay_transaction->delete();
 
             // update wallet

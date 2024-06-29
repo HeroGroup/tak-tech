@@ -11,7 +11,10 @@ class ServiceRenew extends Model
 
     protected $fillable = [
         'service_id',
+        'service_price',
+        'discount_id',
         'add_days',
+        'payment_status',
         'api_call_status',
         'api_call_message',
     ];

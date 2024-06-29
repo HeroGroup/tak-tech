@@ -10,7 +10,7 @@ class JobController extends Controller
     public function renew()
     {
         try {
-            $items = ServiceRenew::where('api_call_status', '-1')->get();
+            $items = ServiceRenew::where('api_call_status', '-1')->where('payment_status', 'successful')->get();
             foreach ($items as $item) {
                 $data = [
                     'token' => env('API_CALL_TOKEN'),
