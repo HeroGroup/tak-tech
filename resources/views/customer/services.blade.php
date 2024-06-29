@@ -123,7 +123,7 @@
                 <div style="display: flex; justify-content: space-between;">
                   <div style="flex: 1">موجودی کیف پول</div>
                   <div style="flex: 1; text-align: left;">
-                    <span class="cart-sum">{{number_format(auth()->user()->wallet)}} تومان</span>
+                    <span>{{number_format(auth()->user()->wallet)}} تومان</span>
                   </div>
                 </div>
                   

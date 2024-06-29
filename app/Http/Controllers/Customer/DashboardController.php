@@ -61,7 +61,7 @@ class DashboardController extends Controller
 
             return back()->with('message', 'پروفایل با موفقیت بروزرسانی شد.')->with('type', 'success');
         } catch (\Exception $exception) {
-            return back()->with('message', $wxception->getMessage())->with('type', 'danger');
+            return back()->with('message', $wxception->getMessage())->with('type', 'error');
         }
         
     }
@@ -74,7 +74,7 @@ class DashboardController extends Controller
 
             return back()->with('message', $result['message'])->with('type', $result['type']);
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 
@@ -84,7 +84,7 @@ class DashboardController extends Controller
 
             return view('customer.orders', compact('orders'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 
@@ -94,7 +94,7 @@ class DashboardController extends Controller
 
             return view('customer.order', compact('order'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 
@@ -105,7 +105,7 @@ class DashboardController extends Controller
 
             return view('customer.services', compact('services'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 
@@ -115,7 +115,7 @@ class DashboardController extends Controller
 
             return back()->with('message', 'توضیحات سرویس با موفقیت به روزرسانی شد.')->with('type', 'success');
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 
@@ -146,7 +146,7 @@ class DashboardController extends Controller
             $service_id = $request->id;
             $service = Service::find($service_id);
             if (!$service || !$service->expire_days || !$service->activated_at) {
-                session(['message' => "سرویس قابل تمدید نمی باشد.", "type" => "danger"]);
+                session(['message' => "سرویس قابل تمدید نمی باشد.", "type" => "error"]);
                 return "/customer/services";
             }
 
@@ -233,7 +233,7 @@ class DashboardController extends Controller
         } catch (\Exception $exception) {
             session([
                 'message' => $exception->getLine().': '.$exception->getMessage(), 
-                "type" => "danger"
+                "type" => "error"
             ]);
             return "/customer/services";
         }
@@ -331,7 +331,7 @@ class DashboardController extends Controller
 
             return view('customer.transactions', compact('transactions'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 
@@ -356,9 +356,9 @@ class DashboardController extends Controller
                 return redirect("$pay_url?amount=$amount_rial&description=$chargeTransaction->id&reason=wallet");
             }
 
-            return back()->with('message', 'مبلغ نامعتبر')->with('type', 'danger');
+            return back()->with('message', 'مبلغ نامعتبر')->with('type', 'error');
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
         
     }
@@ -411,7 +411,7 @@ class DashboardController extends Controller
 
             return view('customer.notifications', compact('notifications'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
     
@@ -435,7 +435,7 @@ class DashboardController extends Controller
 
             return view('customer.invite', compact('numberOdInvitedPeople', 'reward', 'app_url'));
         } catch (\Exception $exception) {
-            return back()->with('message', $exception->getMessage())->with('type', 'danger');
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 }
