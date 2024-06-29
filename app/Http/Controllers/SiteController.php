@@ -12,6 +12,8 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\ServiceActivate;
+use App\Models\ServiceRenew;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserCart;
@@ -283,12 +285,8 @@ class SiteController extends Controller
                                 true
                             );
 
-                            ServiceRenew::create([
+                            ServiceActivate::create([
                                 'service_id' => $service->id,
-                                'service_price' => $order_detail->product_final_price,
-                                'discount_id' => $order_detail->discount_detail_id,
-                                'add_days' => $order_detail->product->duration ?? 30,
-                                'payment_status' => 'success',
                                 'api_call_status' => $api_call['status'],
                                 'api_call_message' => $api_call['message'],
                             ]);
