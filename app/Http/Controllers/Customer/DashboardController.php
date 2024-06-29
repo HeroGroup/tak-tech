@@ -293,7 +293,12 @@ class DashboardController extends Controller
                     'add_days' => $service_renew->add_days
                 ];
 
-                $api_call = api_call('POST', env('PANEL_URL').'/wiregaurd/peers/renew', $data, true);
+                $api_call = api_call(
+                    'POST', 
+                    env('PANEL_URL').'/wiregaurd/peers/renew', 
+                    json_encode($data), 
+                    true
+                );
 
                 $service_renew->payment_status = 'success';
                 $service_renew->api_call_status = $api_call['status'];

@@ -18,7 +18,12 @@ class JobController extends Controller
                     'add_days' => $item->add_days
                 ];
 
-                $api_call = api_call('POST', env('PANEL_URL').'/wiregaurd/peers/renew', $data, true);
+                $api_call = api_call(
+                    'POST', 
+                    env('PANEL_URL').'/wiregaurd/peers/renew', 
+                    json_encode($data), 
+                    true
+                );
 
                 // insert in service_renews
                 ServiceRenew::where('id', $item->id)
