@@ -193,7 +193,7 @@
               Array.prototype.forEach.call(cartSums, function(element) {
                 element.innerHTML = `
                   <s>${new Intl.NumberFormat().format(cart[index].price)} تومان</s>
-                  <div class="text-success">${new Intl.NumberFormat().format(cart[index].finalPrice)} تومان</div>
+                  <div class="text-success">${new Intl.NumberFormat().format(cart[index].finalPrice-wallet)} تومان</div>
                 `;
               });
               applied = true;
@@ -223,7 +223,7 @@
         Array.prototype.forEach.call(cartSums, function(element) {
           element.innerHTML = `
             <s>${new Intl.NumberFormat().format(basePrice)} تومان</s>
-            <div class="text-success">${new Intl.NumberFormat().format(finalPrice)} تومان</div>
+            <div class="text-success">${new Intl.NumberFormat().format(finalPrice-wallet)} تومان</div>
           `;
         });
         applied = true;
