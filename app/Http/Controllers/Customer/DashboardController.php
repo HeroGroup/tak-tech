@@ -326,7 +326,8 @@ class DashboardController extends Controller
             if ($amount > 0) {
                 // redirect to bank
                 $pay_url = env('PAY_URL');
-                return redirect("$pay_url?amount=$amount&description=increase&reason=wallet");
+                $amount_rial = $amount * 10;
+                return redirect("$pay_url?amount=$amount_rial&description=increase&reason=wallet");
             }
 
             return back()->with('message', 'مبلغ نامعتبر')->with('type', 'danger');
