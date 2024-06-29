@@ -146,7 +146,8 @@ class DashboardController extends Controller
             $service_id = $request->id;
             $service = Service::find($service_id);
             if (!$service || !$service->expire_days || !$service->activated_at) {
-                session(['message' => "سرویس قابل تمدید نمی باشد.", "type" => "error"]);
+                $request->session()->flash('message', "سرویس قابل تمدید نمی باشد.");
+                $request->session()->flash('type', "error");
                 return "/customer/services";
             }
 
@@ -231,10 +232,8 @@ class DashboardController extends Controller
 
             return "/renew/payResult?order_id=$renewd_service->id&status=OK&ref_id=";
         } catch (\Exception $exception) {
-            session([
-                'message' => $exception->getLine().': '.$exception->getMessage(), 
-                "type" => "error"
-            ]);
+            $request->session()->flash('message', $exception->getLine().': '.$exception->getMessage());
+            $request->session()->flash('type', "error");
             return "/customer/services";
         }
     }
