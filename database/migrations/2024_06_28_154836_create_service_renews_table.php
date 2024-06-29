@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('service_renews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->index();
+            $table->foreignUuid('service_id')->index();
             $table->string('service_price', 10);
             $table->foreignId('discount_id')->nullable()->index();
             $table->integer('add_days');
