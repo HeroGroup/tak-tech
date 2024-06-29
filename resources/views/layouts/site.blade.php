@@ -31,8 +31,8 @@
                                 <nav class="header-menu" data-content="sidebarMenu">
                                     <ul class="menu-list">
                                         <li class="menu-item"><a href="#home" class="menu-link">صفحه اصلی</a></li>
-                                        <li class="menu-item"><a href="#service" class="menu-link">خدمات</a></li>
-                                        <li class="menu-item"><a href="#feature" class="menu-link">امکانات</a></li>
+                                        <li class="menu-item"><a href="#service" class="menu-link">امکانات</a></li>
+                                        <li class="menu-item"><a href="#feature" class="menu-link">سرورها</a></li>
                                         <li class="menu-item"><a href="#pricing" class="menu-link">محصولات</a></li>
                                         <li class="menu-item"><a href="#reviews" class="menu-link">نظرات</a></li>
                                     </ul>
