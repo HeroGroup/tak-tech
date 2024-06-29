@@ -22,7 +22,7 @@
           <label>{{isset($ref_id) ? $ref_id : ''}}</label>
         </div>
         @else
-        <h5 class="card-title">خطا در ثبت سفارش!</h5>
+        <h5 class="card-title">خطا در پرداخت!</h5>
         <h6 class="center">{{$message}}</h6>
         @endif  
       </div>

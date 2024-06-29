@@ -209,7 +209,7 @@ class DashboardController extends Controller
         }
     }
 
-    public function renewPayResult()
+    public function renewPayResult(Request $request)
     {
         $status = 'fail';
         $message = '';
