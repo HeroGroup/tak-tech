@@ -51,6 +51,7 @@
                     } else {
                         toastr.info(message);
                     }
+                    <?php session(['message' => '', 'type' => '']); ?>
                 }
             });
 

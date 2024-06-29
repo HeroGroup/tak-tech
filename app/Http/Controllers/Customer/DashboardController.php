@@ -305,6 +305,10 @@ class DashboardController extends Controller
                 $service_renew->api_call_message = $api_call['message'];
                 $service_renew->save();
 
+                $service_expire_days = $service->expire_days;
+                $service->exire_days = $service_expire_days + $service_renew->add_days;
+                $service->save();
+
                 $status = 'success';
                 $message .= 'سرویس با موفقیت تمدید شد!';
 

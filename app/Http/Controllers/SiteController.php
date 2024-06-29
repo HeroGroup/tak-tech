@@ -260,22 +260,43 @@ class SiteController extends Controller
                         array_push($services, $service->id);
                         array_push($files, $service->qr_file);
                         array_push($files, $service->conf_file);
+                        
+                        $activate_condition = ($user_id && auth()->user()?->user_type == 'customer') || !$user_id;
                         $service->update([
                             'is_sold' => 1,
                             'sold_at' => $now,
                             'order_detail_id' => $order_detail->id,
-                            'activated_date' => $now
+                            'activated_date' => $activate_condition ? $now : NULL,
+                            'owner' => $user_id
                         ]);
+                        if ($activate_condition) {
+                            // api call to activate service
+                            $data = [
+                                'token' => env('API_CALL_TOKEN'),
+                                'peer_id' => $service->panel_peer_id,
+                            ];
+
+                            $api_call = api_call(
+                                'POST', 
+                                env('PANEL_URL').'/wiregaurd/peers/activate', 
+                                json_encode($data), 
+                                true
+                            );
+
+                            ServiceRenew::create([
+                                'service_id' => $service->id,
+                                'service_price' => $order_detail->product_final_price,
+                                'discount_id' => $order_detail->discount_detail_id,
+                                'add_days' => $order_detail->product->duration ?? 30,
+                                'payment_status' => 'success',
+                                'api_call_status' => $api_call['status'],
+                                'api_call_message' => $api_call['message'],
+                            ]);
+                        }
                     }
                 }
 
                 if ($user_id) {
-                    $serviceUpdate['owner'] = $user_id;
-                    if (auth()->user()->user_type !== 'customer') {
-                        $serviceUpdate['activated_at'] = NULL;
-                    }
-                    Service::whereIn('id', $services)->update($serviceUpdate);
-                    
                     // delete cart from db
                     UserCart::where('user_id', $user_id)->delete();
 
