@@ -312,7 +312,10 @@ class DashboardController extends Controller
 
     public function transactions() {
         try {
-            $transactions = Transaction::where('user_id', auth()->user()->id)->orderByDesc('id')->get();
+            $transactions = Transaction::where('user_id', auth()->user()->id)
+                ->where('status', TransactionStatus::PAYMENT_SUCCESSFUL->value)
+                ->orderByDesc('id')
+                ->get();
 
             return view('customer.transactions', compact('transactions'));
         } catch (\Exception $exception) {
@@ -374,7 +377,7 @@ class DashboardController extends Controller
                     $user_wallet = auth()->user()->wallet;
                     User::where('id', auth()->user()->id)
                         ->update([
-                            'wallet', $user_wallet + $charge_amount
+                            'wallet' => ($user_wallet + $charge_amount)
                         ]);
                 }
 
