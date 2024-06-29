@@ -231,7 +231,11 @@ class DashboardController extends Controller
 
             return "/renew/payResult?order_id=$renewd_service->id&status=OK&ref_id=";
         } catch (\Exception $exception) {
-            return $exception->getLine().': '.$exception->getMessage();
+            session([
+                'message' => $exception->getLine().': '.$exception->getMessage(), 
+                "type" => "danger"
+            ]);
+            return "/customer/services";
         }
     }
 
