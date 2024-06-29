@@ -146,7 +146,8 @@ class DashboardController extends Controller
             $service_id = $request->id;
             $service = Service::find($service_id);
             if (!$service || !$service->expire_days || !$service->activated_at) {
-                return "invali service!";
+                session(['message' => "سرویس قابل تمدید نمی باشد.", "type" => "danger"]);
+                return "/customer/services";
             }
 
             $cart = json_decode($request->cart);
