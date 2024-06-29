@@ -337,7 +337,7 @@ class DashboardController extends Controller
         
     }
 
-    public function walletPayResult()
+    public function walletPayResult(Request $request)
     {
         $status = 'fail';
         $message = '';
