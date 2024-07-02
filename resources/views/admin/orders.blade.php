@@ -77,8 +77,10 @@
                             <th>User</th>
                             <th>Base Price</th>
                             <th>Final Price</th>
+                            <th>Discount</th>
                             <th>Status</th>
                             <th>Time</th>
+                            <th>Transaction</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,6 +90,7 @@
                             <td>{{$order->user?->email ?? 'Anonymus'}}</td>
                             <td>{{number_format($order->base_price)}}</td>
                             <td>{{number_format($order->final_price)}}</td>
+                            <td>{{number_format($order->base_price-$order->final_price)}}</td>
                             <td>
                               @if ($order->status==\App\Enums\OrderStatus::PENDING->value)
                               <span class="badge badge-warning">{{$order->status}}</span>
@@ -98,6 +101,47 @@
                               @endif
                             </td>
                             <td>{{date('Y-m-d H:i', $order->created_at->timestamp)}}</td>
+                            <td>
+                                @if($order->transaction_id)
+                                <a href="#" data-toggle="modal" data-target="#order-{{$order->id}}-transaction-modal">
+                                    <i class="fas fa-fw fa-euro-sign"></i>
+                                </a>
+                                <!-- Edit User Modal -->
+                                <div class="modal fade" id="order-{{$order->id}}-transaction-modal" tabindex="-1" role="dialog" aria-labelledby="OrderTransactionModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="OrderTransactionModalLabel">Order Transaction</h5>
+                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <?php $transaction = $order->transaction; ?>
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Title</th>
+                                                            <th>Description</th>
+                                                            <th>Amount</th>
+                                                            <th>Time</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>{{$transaction->title ?? '-'}}</td>
+                                                            <td>{{$transaction->description ?? '-'}}</td>
+                                                            <td>{{number_format($transaction->amount)}}</td>
+                                                            <td>{{date('Y-m-d H:i', $transaction->created_at->timestamp)}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>

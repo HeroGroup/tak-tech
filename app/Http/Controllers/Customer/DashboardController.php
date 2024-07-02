@@ -15,6 +15,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\ServiceActivate;
 use App\Models\ServiceRenew;
 use App\Models\Transaction;
 use App\Models\User;
@@ -235,6 +236,48 @@ class DashboardController extends Controller
             $request->session()->flash('message', $exception->getLine().': '.$exception->getMessage());
             $request->session()->flash('type', "error");
             return "/customer/services";
+        }
+    }
+
+    public function activateService($id)
+    {
+        try {
+            $service = Service::where('id', $id)
+                ->where('owner', auth()->user()->id)
+                ->where('is_enabled', 1)
+                ->where('expire_days', '>', '0')
+                ->whereNull('activated_at')
+                ->first();
+
+            if (!$service) {
+                return back()->with('message', 'سرویس نامعتبر است.')->with('type', 'error');
+            }
+
+            $service->activated_at = date('Y-m-d H:i:s');
+            $service->save();
+
+            // api call to activate service
+            $data = [
+                'token' => env('API_CALL_TOKEN'),
+                'peer_id' => $service->panel_peer_id,
+            ];
+
+            $api_call = api_call(
+                'POST', 
+                env('PANEL_URL').'/wiregaurd/peers/activate', 
+                json_encode($data), 
+                true
+            );
+
+            ServiceActivate::create([
+                'service_id' => $service->id,
+                'api_call_status' => $api_call['status'],
+                'api_call_message' => $api_call['message'],
+            ]);
+
+            return back()->with('message', 'سرویس با موفقیت فعال شد.')->with('type', 'success');
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
         }
     }
 

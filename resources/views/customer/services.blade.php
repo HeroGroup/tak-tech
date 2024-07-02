@@ -61,7 +61,7 @@
                 <span class="badge badge-sm bg-danger">منقضی شده</span>
             @endif
           @elseif($service->expire_days && $service->is_enabled)
-          <a href="#" class="btn btn-sm btn-primary">شروع استفاده</a>
+          <a href="{{route('customer.services.activate',$service->id)}}" class="btn btn-sm btn-primary">شروع استفاده</a>
           @else
           -
           @endif
@@ -79,9 +79,11 @@
               <a href="{{route('customer.services.download',['id'=>$service->id,'files'=>'all'])}}" class="btn btn-icon btn-trigger btn-tooltip">
                 <em class="icon ni ni-download"></em> دانلود
               </a>
+              @unless($service->product->allowed_traffic > 0)
               <a href="#" class="btn btn-icon btn-trigger btn-tooltip" onclick="createCart('{{$service->id}}','{{$service->product_id}}','{{$service->product->title}}','{{$service->product->price}}')" data-bs-toggle="modal" data-bs-target="#cartModal-{{$service->id}}">
                 <em class="icon ni ni-repeat"></em> تمدید
               </a>
+              @endunless
               <!-- @if($service->product->iType == 'limited')
               <a href="#" class="btn btn-icon btn-trigger btn-tooltip">
                 <em class="icon ni ni-chart-up"></em> آمار مصرف

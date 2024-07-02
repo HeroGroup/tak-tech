@@ -20,7 +20,7 @@ class JobController extends Controller
 
                 $api_call = api_call(
                     'POST', 
-                    env('PANEL_URL').'/wiregaurd/peers/renew', 
+                    env('PANEL_URL').'/wiregaurd/peers/activate', 
                     json_encode($data), 
                     true
                 );

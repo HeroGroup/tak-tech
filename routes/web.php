@@ -49,7 +49,6 @@ Route::name('auth.')->group(function () {
     Route::get('/auth/{provider}/callback', [AuthController::class, 'callback'])->name('callback');
 });
 
-
 Route::prefix('admin')->group(function () {
     Route::get('/', function() { return redirect(route('admin.dashboard')); });
 
@@ -109,6 +108,7 @@ Route::prefix('customer')->group(function () {
             Route::put('/services/{id}/updateNote', [CustomerDashboardController::class, 'updateServiceNote'])->name('services.updateNote');
             Route::post('/services/renew', [CustomerDashboardController::class, 'renewService'])->name('services.renew');
             Route::get('/services/{id}/download/{files}', [CustomerDashboardController::class, 'downloadService'])->name('services.download');
+            Route::get('/services/{id}/activate', [CustomerDashboardController::class, 'activateService'])->name('services.activate');
             Route::get('/transactions', [CustomerDashboardController::class, 'transactions'])->name('transactions');
             Route::post('/transactions/increase', [CustomerDashboardController::class, 'increaseWalletAmount'])->name('transactions.increase');
             Route::get('/notifications', [CustomerDashboardController::class, 'notifications'])->name('notifications');
