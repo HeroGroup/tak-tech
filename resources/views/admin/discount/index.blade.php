@@ -1,17 +1,15 @@
 @extends('layouts.admin.main', ['pageTitle' => 'Discount Codes', 'active' => 'discounts'])
 @section('content')
+    <div class="mb-4">
+        <a href="{{route('admin.discounts.create')}}" class="btn btn-primary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">new discount code</span>
+        </a>
+    </div>
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Discount Codes</h6>
-        </div>
         <div class="card-body">
-            <a href="{{route('admin.discounts.create')}}" class="btn btn-primary btn-icon-split">
-                <span class="icon text-white-50">
-                    <i class="fas fa-plus"></i>
-                </span>
-                <span class="text">new discount code</span>
-            </a>
-            <hr>
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>

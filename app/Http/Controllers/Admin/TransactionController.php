@@ -22,6 +22,7 @@ class TransactionController extends Controller
             $userId = $request->query('userId');
             $fromDate = $request->query('fromDate');
             $toDate = $request->query('toDate');
+            $reason = $request->query('reason');
 
             $transactions = Transaction::with('user');
             $filters = $filter;
@@ -64,15 +65,25 @@ class TransactionController extends Controller
                 $numberOfPendingPayments = $numberOfPendingPayments->where('created_at', '<=' ,$toDate);
             }
 
+            if ($reason && $reason != 'all') {
+                $transactions = $transactions->where('reason', $reason);
+                $filters .= ', Reason: ' . $reason;
+
+                $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->where('reason', $reason);
+                $numberOfFailedPayments = $numberOfFailedPayments->where('reason', $reason);
+                $numberOfPendingPayments = $numberOfPendingPayments->where('reason', $reason);
+            }
+
             $transactions = $transactions->orderBy('created_at', 'desc')->get();
             $users = User::where('is_active', 1)->pluck('email', 'id')->toArray();
 
             $numberOfSuccessfulPayments = $numberOfSuccessfulPayments->count();
             $numberOfFailedPayments = $numberOfFailedPayments->count();
             $numberOfPendingPayments = $numberOfPendingPayments->count();
+            $transactionReasons = TransactionReason::forSelect();
 
             return view('admin.transactions', 
-                compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filter', 'filters', 'fromDate', 'toDate'));
+                compact('transactions', 'users', 'numberOfSuccessfulPayments', 'numberOfFailedPayments', 'numberOfPendingPayments', 'userId', 'filter', 'filters', 'fromDate', 'toDate', 'reason', 'transactionReasons'));
         } catch (\Exception $exception) {
             return back()->with('message', $exception->getMessage())->with('type', 'danger');
         }

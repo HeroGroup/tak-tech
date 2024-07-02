@@ -17,6 +17,7 @@ class Service extends Model
         'panel_peer_id',
         'conf_file',
         'qr_file',
+        'is_enabled',
         'is_sold',
         'sold_at',
         'order_detail_id',
@@ -30,5 +31,10 @@ class Service extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function buyer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner', 'id');
     }
 }

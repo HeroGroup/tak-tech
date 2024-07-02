@@ -55,6 +55,7 @@
             padding: .5em;
             margin-right: .5em;
             text-decoration: none;
+            font-size: 14px;
         }
         .filter-btn:hover {
             background-color: #eee;
@@ -82,6 +83,7 @@
             border-radius: 3px; 
             color: #222; 
             padding: 0 5px;
+            font-size: 14px;
         }
         .pagination-btn:hover {
             text-decoration: none;
@@ -283,6 +285,61 @@
                 document.getElementById('next-page-btn').classList.remove('disabled');
             }
         }
+    }
+    function createFormData(inputs) {
+        let formData = new FormData();
+        var inputKeys = Object.keys(inputs);
+        inputKeys.forEach((key) => {
+        formData.append(key, inputs[key]);
+        });
+
+        return formData;
+    }
+    function sendRequest(params) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(params.method, params.route, true);
+        xhr.addEventListener("load", function() {
+            var response = JSON.parse(xhr.response);
+            console.log(response);
+            if(response.status === 1) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.message,
+                    showConfirmButton: false,
+                    timer: parseInt("{{$messageDuration ?? '3000'}}")
+                })
+
+                if(params.successCallback) {
+                    params.successCallback();
+                }
+            } else {
+                if (params.failCallback) {
+                    params.failCallback();
+                }
+
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: response.message,
+                    showConfirmButton: false,
+                    timer: parseInt("{{$messageDuration ?? '3000'}}")
+                })
+            }
+        });
+        xhr.send(params.formData);
+    }
+    function searchBase(baseRoute,set={}) {
+        var queryString = window.location.search;
+        var urlParams = new URLSearchParams(queryString);
+        urlParams.delete('page');
+
+        var params = Object.keys(set);
+        params.forEach(key => {
+            urlParams.set(key, set[key]);
+        });
+
+        window.location.href = `${baseRoute}?${urlParams.toString()}`;
     }
 </script>
 </body>

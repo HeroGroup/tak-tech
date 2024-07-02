@@ -21,6 +21,7 @@
                             <th>row</th>
                             <th>Product</th>
                             <th>Status</th>
+                            <th>Owner</th>
                             <th>Activated Date</th>
                             <th>Expires</th>
                             <th>Enabled</th>
@@ -39,6 +40,7 @@
                                 <span class="badge badge-info">free</span>
                                 @endif
                             </td>
+                            <td>{{$service->is_sold ? ($service->buyer?->email ?? 'Guest') : ''}}</td>
                             <td>{{substr($service->activated_at, 0, 16)}}</td>
                             <td>
                             @if($service->expire_days && $service->activated_at)
@@ -82,7 +84,7 @@
                             </td>
                             <td>
                                 <label class="switch">
-                                    <input type="checkbox" name="Enabled" id="enabled_{{$service->id}}" @if($service->is_enabled) checked @endif>
+                                    <input type="checkbox" name="Enabled" id="enabled_{{$service->id}}" @if($service->is_enabled) checked @endif onchange="toggleEnable('{{$service->id}}', this.checked)">
                                     <span class="slider round"></span>
                                 </label>
                             </td>
@@ -96,20 +98,27 @@
 
 <script>
     var baseRoute = "{{route('admin.services.index')}}";
-    function searchBase(set={}) {
-        var queryString = window.location.search;
-        var urlParams = new URLSearchParams(queryString);
-        urlParams.delete('page');
-
-        var params = Object.keys(set);
-        params.forEach(key => {
-            urlParams.set(key, set[key]);
-        });
-
-        window.location.href = `${baseRoute}?${urlParams.toString()}`;
-    }
     function searchServices(filter) {
-        searchBase({ 'is_sold': filter });
+        searchBase(baseRoute, { 'is_sold': filter });
+    }
+    function toggleEnable(id, checked) {
+        var formData = createFormData({
+            '_token': '{{csrf_token()}}',
+            '_method': 'PUT',
+            'id': id,
+            'status': checked ? 1 : 0
+        });
+        
+        var params = {
+            method: 'POST',
+            route: "{{route('admin.services.toggleEnable')}}",
+            formData,
+            failCallback: function() {
+                document.getElementById(`enabled_${id}`).checked = !checked;
+            }
+        };
+
+        sendRequest(params);
     }
 </script>
 @endsection

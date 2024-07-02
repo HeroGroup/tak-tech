@@ -1,17 +1,15 @@
 @extends('layouts.admin.main', ['pageTitle' => 'Products', 'active' => 'products'])
 @section('content')
+    <div class="mb-4">
+        <a class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#new-product-modal">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">new product</span>
+        </a>
+    </div>
   <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Products</h6>
-        </div>
         <div class="card-body">
-            <a class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#new-product-modal">
-                <span class="icon text-white-50">
-                    <i class="fas fa-plus"></i>
-                </span>
-                <span class="text">new product</span>
-            </a>
-            <hr>
             <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>

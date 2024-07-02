@@ -33,33 +33,35 @@
         </td>
         <td class="nk-tb-col">
           @if($service->expire_days && $service->activated_at)
-          <?php 
-            $expire = $service->expire_days;
-            $diff = strtotime($service->activated_at. " + $expire days") - $nowTime; 
-            if ($diff > 0) {
-              $total_left = explode('.', round($diff / (60 * 60 * 24), 2));
-              $days_left = $total_left[0] ?? 0;
-              $hours_left = floor(($total_left[1] ?? 0) / 100 * 24);
-              $time_left_to_show = "";
-              if ($days_left > 0) {
-                $time_left_to_show .= "$days_left روز ";
+            <?php 
+              $expire = $service->expire_days;
+              $diff = strtotime($service->activated_at. " + $expire days") - $nowTime; 
+              if ($diff > 0) {
+                $total_left = explode('.', round($diff / (60 * 60 * 24), 2));
+                $days_left = $total_left[0] ?? 0;
+                $hours_left = floor(($total_left[1] ?? 0) / 100 * 24);
+                $time_left_to_show = "";
+                if ($days_left > 0) {
+                  $time_left_to_show .= "$days_left روز ";
+                }
+                if ($hours_left > 0) {
+                  $time_left_to_show .= "$hours_left ساعت";
+                }
               }
-              if ($hours_left > 0) {
-                $time_left_to_show .= "$hours_left ساعت";
-              }
-            }
-          ?>
-          @if($diff > 0)
-              @if($days_left > 15)
-              <span class="badge badge-sm bg-success">{{$time_left_to_show}}</span>
-              @elseif($days_left > 8)
-              <span class="badge badge-sm bg-info">{{$time_left_to_show}}</span>
-              @else
-              <span class="badge badge-sm bg-warning">{{$time_left_to_show}}</span>
-              @endif
-          @else
-              <span class="badge badge-sm bg-danger">expired</span>
-          @endif
+            ?>
+            @if($diff > 0)
+                @if($days_left > 15)
+                <span class="badge badge-sm bg-success">{{$time_left_to_show}}</span>
+                @elseif($days_left > 8)
+                <span class="badge badge-sm bg-info">{{$time_left_to_show}}</span>
+                @else
+                <span class="badge badge-sm bg-warning">{{$time_left_to_show}}</span>
+                @endif
+            @else
+                <span class="badge badge-sm bg-danger">منقضی شده</span>
+            @endif
+          @elseif($service->expire_days && $service->is_enabled)
+          <a href="#" class="btn btn-sm btn-primary">شروع استفاده</a>
           @else
           -
           @endif

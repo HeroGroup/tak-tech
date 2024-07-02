@@ -1,18 +1,28 @@
 @extends('layouts.admin.main', ['pageTitle' => 'Transactions', 'active' => 'transactions'])
 @section('content')
-<div class="row col-md-12 mb-4 filter-btns">
-    <a href="#" onclick="searchTransactions('all', '{{$userId}}')" class="filter-btn border-bottom-info">
-        <span class="text-gray-900">All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
-    </a>
-    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value}}', '{{$userId}}')" class="filter-btn border-bottom-success">
-        <span class="text-gray-900">Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
-    </a>
-    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_FAILED->value}}', '{{$userId}}')" class="filter-btn border-bottom-danger">
-        <span class="text-gray-900">Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
-    </a>
-    <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PENDING->value}}', '{{$userId}}')" class="filter-btn border-bottom-warning">
-        <span class="text-gray-900">Pending Payments</span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
-    </a>
+<div class="row mb-4">
+    <div class="col-md-8 filter-btns">
+        <a href="#" onclick="searchTransactions('all', '{{$userId}}')" class="filter-btn border-bottom-info">
+            <span class="text-gray-900">All</span>&nbsp;<span class="text-info">{{$numberOfSuccessfulPayments + $numberOfFailedPayments + $numberOfPendingPayments}}</span>
+        </a>
+        <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_SUCCESSFUL->value}}', '{{$userId}}')" class="filter-btn border-bottom-success">
+            <span class="text-gray-900">Successful Payments</span>&nbsp;<span class="text-success">{{$numberOfSuccessfulPayments}}</span>
+        </a>
+        <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PAYMENT_FAILED->value}}', '{{$userId}}')" class="filter-btn border-bottom-danger">
+            <span class="text-gray-900">Failed Payments</span>&nbsp;<span class="text-danger">{{$numberOfFailedPayments}}</span>
+        </a>
+        <a href="#" onclick="searchTransactions('{{\App\Enums\TransactionStatus::PENDING->value}}', '{{$userId}}')" class="filter-btn border-bottom-warning">
+            <span class="text-gray-900">Pending Payments</span>&nbsp;<span class="text-warning">{{$numberOfPendingPayments}}</span>
+        </a>
+    </div>
+    <div class="col-md-2">
+        <select name="filter_reason" id="filter_reason" class="form-control" onchange="searchTransactionReasons(this.value)">
+            <option value="all">All Reasons</option>
+            @foreach ($transactionReasons as $key => $value)
+            <option value="{{$key}}" @if($key==$reason) selected @endif>{{$value}}</option>
+            @endforeach
+        </select>
+    </div>
 </div>
 
 <div class="row col-md-12 mb-4">
@@ -137,26 +147,26 @@
                   <form method="post" action="{{route('admin.transactions.store')}}">
                     @csrf
                     <div class="form-group row" style="margin-bottom:30px;">
-                            <div class="col-md-12">
-                                <label for="title">Title</label>
-                                <input class="form-control" name="title" value="{{old('title')}}" placeholder="Enter transaction title" required>
-                            </div>
+                        <div class="col-md-12">
+                            <label for="title">Title</label>
+                            <input class="form-control" name="title" value="{{old('title')}}" placeholder="Enter transaction title" required>
                         </div>
-                        <div class="form-group row" style="margin-bottom:30px;">
+                    </div>
+                    <div class="form-group row" style="margin-bottom:30px;">
                         <div class="col-md-12">
                           <label for="user_type">Transaction Reason</label>
                           <select name="reason" id="reason" class="form-control">
                             <option value="{{\App\Enums\TransactionReason::TRANSFER->name}}" selected>{{\App\Enums\TransactionReason::TRANSFER->value}}</option>
                           </select>            
-</div>                                                
+                        </div>                                                
+                    </div>
+                    <div class="form-group row" style="margin-bottom:30px;">
+                        <div class="col-md-12">
+                            <label for="title">Amount</label>
+                            <input class="form-control" name="amount"value="{{old('amount')}}" placeholder="Enter transaction amount" required>
                         </div>
-                        <div class="form-group row" style="margin-bottom:30px;">
-                            <div class="col-md-12">
-                                <label for="title">Amount</label>
-                                <input class="form-control" name="amount"value="{{old('amount')}}" placeholder="Enter transaction amount" required>
-                            </div>
-                        </div>
-                        <div class="form-group row" style="margin-bottom:30px;">
+                    </div>
+                    <div class="form-group row" style="margin-bottom:30px;">
                         <div class="col-md-12">
                           <label for="from">From</label>
                           <select name="from" id="from" class="form-control" required>
@@ -164,9 +174,9 @@
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
                           </select>                    
-</div>                                        
-                        </div>
-                        <div class="form-group row" style="margin-bottom:30px;">
+                        </div>                                        
+                    </div>
+                    <div class="form-group row" style="margin-bottom:30px;">
                         <div class="col-md-12">
                           <label for="to">To</label>
                           <select name="to" id="to" class="form-control">
@@ -174,17 +184,25 @@
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
                           </select>    
-</div>                                                   
+                        </div>                                                   
+                    </div>
+                    <div class="form-group row" style="margin-bottom:30px;">
+                        <div class="col-md-12" style="text-align:center;">
+                            <input type="submit" class="btn btn-success" value="Save and close" />
                         </div>
-                        <div class="form-group row" style="margin-bottom:30px;">
-                            <div class="col-md-12" style="text-align:center;">
-                                <input type="submit" class="btn btn-success" value="Save and close" />
-                            </div>
-                        </div>
+                    </div>
                   </form>
                 </div>
             </div>
         </div>
     </div>
+<script>
+    var baseRoute = "{{route('admin.transactions')}}";
+    
+    function searchTransactionReasons(filter) {
+        console.log(filter);
+        searchBase(baseRoute, { 'reason': filter });
+    }
 
+</script>
 @endsection

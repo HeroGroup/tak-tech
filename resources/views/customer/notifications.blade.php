@@ -1,5 +1,6 @@
 @extends('layouts.customer.main', ['pageTitle' => 'Notifications', 'pageTitleFa' => 'پیام ها', 'active' => 'notifications'])
 @section('content')
+<a href="#" onclick="markAllAsRead()">علامت گذاری همه به عنوان خوانده شده</a>
 <div class="nk-block nk-block-lg">
     @foreach ($notifications as $notification)
     <div class="card card-bordered @if($notification->is_read==0) not-read @endif">

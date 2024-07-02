@@ -10,8 +10,8 @@
       <div class="form-group row">
         <label for="code" class="col-sm-2 col-form-label">Code</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control" name="code" id="code" value="{{$code}}" placeholder="Enter Code" required disabled>
-          <div class="form-text" style="font-size:12px;">Code is automatically generated. <a href="#" onclick="enableDiscountCode()">edit</a></div>
+          <input type="text" class="form-control" name="code" id="code" value="{{$code}}" placeholder="Enter Code" required>
+          <div class="form-text" style="font-size:12px;">Code is automatically generated.</div>
         </div>
       </div>
       <div class="form-group row">

@@ -11,13 +11,36 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function dashboard() {
-        $successfulOrders = Order::where('status', OrderStatus::PAYMENT_SUCCESSFUL->value);
-        $totalRevenue = $successfulOrders->sum('final_price');
-        $numberOfSuccessfulOrders = $successfulOrders->count();
-        $numberOfUsers = User::count();
+    public function dashboard(Request $request) {
+        try {
+            $report = $request->query('report', 7);
+        
+            $days = [];
+            $base_prices = [];
+            $final_prices = [];
 
-        return view('admin.dashboard', compact('totalRevenue', 'numberOfUsers', 'numberOfSuccessfulOrders'));
+            $report_start_date = date('Y-m-d H:i:s', time() - ($report * 86400));
+            $report_result = Order::where('status', OrderStatus::PAYMENT_SUCCESSFUL->value)
+                ->where('created_at', '>=', substr($report_start_date, 0, 10))
+                ->selectRaw('SUM(base_price) AS SUM_BASE_PRICE, SUM(final_price) AS SUM_FINAL_PRICE, SUBSTR(created_at, 1, 10) AS DAY')
+                ->groupByRaw('DAY')
+                ->get()
+                ->toArray();
+            
+            $days = json_encode(array_merge($days, array_column($report_result, 'DAY')));
+            $base_prices = json_encode(array_merge($base_prices, array_column($report_result, 'SUM_BASE_PRICE')));
+            $final_prices = json_encode(array_merge($final_prices, array_column($report_result, 'SUM_FINAL_PRICE')));
+
+            $successfulOrders = Order::where('status', OrderStatus::PAYMENT_SUCCESSFUL->value);
+            $totalRevenueWithOutDiscount = $successfulOrders->sum('base_price');
+            $totalRevenue = $successfulOrders->sum('final_price');
+            $numberOfSuccessfulOrders = $successfulOrders->count();
+            $numberOfUsers = User::count();
+
+            return view('admin.dashboard', compact('report', 'days', 'base_prices', 'final_prices', 'totalRevenueWithOutDiscount', 'totalRevenue', 'numberOfUsers', 'numberOfSuccessfulOrders'));
+        } catch (\Exception $exception) {
+            return back()->with('message', $exception->getMessage())->with('type', 'error');
+        }
     }
 
     public function notifications() {

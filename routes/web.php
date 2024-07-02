@@ -85,6 +85,7 @@ Route::prefix('admin')->group(function () {
             });
 
             Route::get('/services', [ServiceController::class, 'index'])->name('services.index')->middleware('access.service');
+            Route::put('/services/toggleEnable', [ServiceController::class, 'toggleEnable'])->name('services.toggleEnable')->middleware('access.service');
             Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
             Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions')->middleware('access.transaction');
             Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store')->middleware('access.transaction');

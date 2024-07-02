@@ -87,7 +87,7 @@
                                                         @foreach ($userTypes as $key => $value)
                                                         <option value="{{$key}}" @if($user->user_type==$key) selected @endif>{{$value}}</option>
                                                         @endforeach
-                                                      </select>                                                            
+                                                      </select>
                                                   </div>
                                               </div>
                                               <div class="form-group row" style="margin-bottom:30px;">
