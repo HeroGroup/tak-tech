@@ -112,7 +112,7 @@
                     shareData(sharedDataSample);
                 } else {
                     // canNotShareData();
-                    // copy to cliboardtion
+                    // copy to clipboard
                     navigator.clipboard.writeText(shareUrl);
                     toastr.success('لینک دعوت کپی شد.');
                 }
